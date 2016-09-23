@@ -1,0 +1,80 @@
+module Communication_Defaults { 
+    
+    // Communication ATS
+    import from Communication_Interfaces { 
+        type EutComp
+    };
+    import from Communication_Templates { 
+        template 
+            mw_instanceStateChange_any,
+            mw_unformattedADUReceived_any,
+            mw_aduRequest_any,
+            mw_aduReceived_any,
+            mw_aduSent_any,
+            mw_aduSendOK_any,
+            mw_sessionRequest_any,
+            mw_getLastError_any,
+            mw_instanceStateChange_error
+    };
+    import from Communication_PICS { 
+        modulepar 
+            PIC_API_supports_InstanceStateChange_Event,
+            PIC_API_supports_UnformattedADUReceived_Event,
+            PIC_API_supports_ADUReceived_Event,
+            PIC_API_supports_ADUSent_Event,
+            PIC_API_supports_ADUSendOK_Event,
+            PIC_API_supports_SessionRequest_Event
+    };
+
+    group DefaultMessages {
+        /**
+         * @desc        ADU filtering for received messages on FrontEndComp
+         * @verdict     Unchanged on success, fail otherwise and the component is stopped if PX_ProcessUnexpectedADUAsError is set to true
+         */
+        altstep a_defaults() runs on EutComp {
+            [PIC_API_supports_InstanceStateChange_Event == true] pco.receive(mw_instanceStateChange_any) { // Ignore state transition
+                repeat;
+            }
+            [PIC_API_supports_UnformattedADUReceived_Event == true] pco.receive(mw_unformattedADUReceived_any) { // Ignore state transition
+                repeat;
+            }
+            [] pco.receive(mw_aduRequest_any) { // Ignore state transition
+                repeat;
+            }
+            [PIC_API_supports_ADUReceived_Event == true] pco.receive(mw_aduReceived_any) { // Ignore state transition
+                repeat;
+            }
+            [PIC_API_supports_ADUSent_Event == true] pco.receive(mw_aduSent_any) { // Ignore state transition
+                repeat;
+            }
+            [PIC_API_supports_ADUSendOK_Event == true] pco.receive(mw_aduSendOK_any) { // Ignore state transition
+                repeat;
+            }
+            [PIC_API_supports_SessionRequest_Event == true] pco.receive(mw_sessionRequest_any) { // Ignore state transition
+                repeat;
+            }
+            [] pco.receive(mw_getLastError_any) {
+                log ("Function call returned an error");
+                setverdict(fail);
+            }
+            [PIC_API_supports_InstanceStateChange_Event == true] pco.receive(mw_instanceStateChange_error) {
+                log ("Session failure received");
+                setverdict(fail);
+            }
+            [] pco.receive {
+                log ("Unexpected message received");
+                setverdict(fail);
+                stop;
+            }
+            [] t_ac.timeout {
+                log ("Timeout occurs on received message operation");
+                setverdict(fail);
+            } // End of t_ac.timeout
+            [] any timer.timeout {
+                log ("Unexpected timeout occured");
+                setverdict(fail);
+                stop;
+            } // End of any timer.timeout
+        } // End of altstep a_defaults
+    } // End of group DefaultMessages
+}

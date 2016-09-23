@@ -1,0 +1,110 @@
+/**
+ * @author  FSCOM 
+ * @desc    This module provides test cases based on Charging TPs
+ * @see     Electronic fee collection (EFC) — Evaluation of equipment for conformity to CEN ISO/TS 17575-2 — Part 1: Test suite structure and test purpose
+ * @remark  See clause 5.3.2 for TC namimg conventions
+ * @version $id$
+ */
+module Communication_Interfaces {
+    
+    // LibEfc_common
+    import from Common_Pixits all;
+    
+    // Communication ATS
+    import from Communication_TypesAndValues all;
+    import from Common_Pixits all;
+    import from Communication_Pixits {
+        modulepar PX_INSTANCES
+    };
+    import from Common_LibUpperTester all;
+
+    group PortDefinitions {
+        /**
+         * @desc Defines a message based port which allows to exchange ISO TS 17575-2 messages with the EUT
+         */
+        type port EutPort message {
+            inout // Functions call
+                GetLastError,
+                InitialiseInstance,
+                SetParameter,
+                GetParameter,
+                DeleteParameter,
+                StackAvail,
+                DropInstance,
+                StartSession,
+                SendADUSetStart,
+                SendADU,
+                SendADUSetEnd,
+                SendUnformattedADU,
+                EndSession,
+                CommsQuery;
+            in // Callbacks
+                InstanceStateChange,
+                UnformattedADUReceived,
+                ADURequest,
+                ADUReceived,
+                ADUSent,
+                ADUSendOK,
+                SessionRequest;
+            out // BE to FE Application
+                SessionRequest,
+                InstanceStateChange;
+        } // End of port CommunicationPort
+
+        /**
+         * @desc Defines a configuration message based port used to trigger, simulate, configure... DUT
+         */
+        type port EquipmentAccessPort message {
+            in EquipmentOperationRsp;
+            out EquipmentOperationReq;
+        } // End of port EquipmentAccessPort
+    } // End of group PortDefinitions
+
+    /**
+     * @desc   This component type shall be used to create the MTC in order to test the EUT
+     */
+    type component EutComp {
+        /**
+         * TTCN-3 port declaration
+         */
+        port EutPort pco;
+        /**
+         * This port is used to trigger, stimualte, configure etc any
+         */
+        port EquipmentAccessPort eaPort; 
+        /**
+         * Reference to the created instance
+         */
+        var cen175752API vc_instance[PX_INSTANCES];
+        /**
+         * Timer to control receive message timeouts
+         */
+        timer t_ac := PX_TAC;
+        /**
+         * Timer to control timeouts
+         */
+        timer t_noac := PX_TNOAC; 
+        /**
+         * Timer to control user actions timeouts
+         */
+        timer t_wait := PX_WAIT; 
+        /**
+         * Timer to control TC timeouts
+         */
+        //timer t_guard := PX_GUARD;
+    } // End of component EutComp
+
+    /**
+     * @desc   This component type shall be used to define the physical interface with the EUT
+     */
+    type component TestAdapter {
+        /**
+         * Port used to send received ISO TS 17575 messages with the Front End equipment as EUT
+         */
+        port EutPort ta_pco;
+        /**
+         * This port is used to trigger, stimualte, configure etc any
+         */
+        port EquipmentAccessPort ta_eaPort;
+    } // End of component TestAdapter
+} // End of module Communication_Interfaces

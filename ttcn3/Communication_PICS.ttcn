@@ -1,0 +1,463 @@
+/**
+ * @author  FSCOM 
+ * @desc    This module describes the PICS proforma for the attributes
+ * @version $id$
+ */
+module Communication_PICS {
+
+    /**
+     * @see     Electronic fee collection (EFC) — Application interface definition for autonomous systems — Part 2: Communication and connections to the lower layers - Clause B.2 Transactions support
+     */
+    group Transactions_Support {
+
+        /**
+         * @see B.2.1   Support of the Down API
+         */
+        group Support_of_the_Down_API {
+             /**
+              * @desc    Is InitialiseInstance function supported?
+              */
+             modulepar boolean PIC_API_supports_InitialiseInstance := true;
+             /**
+              * @desc    Is StackID supported?
+              */
+             modulepar boolean PIC_StackID_supported := PIC_API_supports_InitialiseInstance;
+             /**
+              * @desc    Is instance handle provided?
+              */
+             modulepar boolean PIC_Instance_provided := PIC_API_supports_InitialiseInstance;
+             /**
+              * @desc    Is invalid instance returned when not possible to create an instance?
+              */
+             modulepar boolean PIC_Invalid_Instance_returned := PIC_API_supports_InitialiseInstance;
+             /**
+              * @desc    Is SetParameter function supported?
+              */
+             modulepar boolean PIC_API_supports_SetParameter := true;
+             /**
+              * @desc    Is instance applied?
+              */
+             modulepar boolean PIC_Instance_applied := PIC_API_supports_SetParameter;
+             /**
+              * @desc    Is ERNoError returned on successful parameter setting?
+              */
+             modulepar boolean PIC_ERNoError_on_successful := PIC_API_supports_SetParameter;
+             /**
+              * @desc    ERNotSet returned on failure to set parameter?
+              */
+             modulepar boolean PIC_ERNotSet_returned_on_failure := PIC_API_supports_SetParameter;
+             /**
+              * @desc    Is GetParameter function supported?
+              */
+             modulepar boolean PIC_API_supports_GetParameter := true;
+             /**
+              * @desc    Is DeleteParameter function supported?
+              */
+             modulepar boolean PIC_API_supports_DeleteParameter := true;
+            /**
+             * Is Instance applied?
+             */
+             modulepar boolean PIC_0Instance_applied := PIC_API_supports_DeleteParameter;
+            /**
+             * Is Parameter applied?
+             */
+             modulepar boolean PIC_Parameter_applied := PIC_API_supports_DeleteParameter;
+            /**
+             * ERNoError is returned when parameter is successfully deleted?
+             */
+             modulepar boolean PIC_ERNoError_on_successfully_deleted := PIC_API_supports_DeleteParameter;
+            /**
+             * ERNotSet is returned when parameter is not successfully deleted?
+             */
+             modulepar boolean PIC_ERNotSet_on_not_successfully_deleted := PIC_API_supports_DeleteParameter;
+            /**
+             * ERNotSet is returned when Instance is not valid?
+             */
+             modulepar boolean PIC_ERNotSet_on_Instance_not_valid := PIC_API_supports_DeleteParameter;
+            /**
+             * ERNotSet is returned when Parameter is not found/invalid?
+             */
+             modulepar boolean PIC_ERNotSet_not_found_or_invalid := PIC_API_supports_DeleteParameter;
+             /**
+              * @desc    Is StackAvail function supported?
+              */
+             modulepar boolean PIC_API_supports_StackAvail := true;
+            /**
+             * Is Instance considered?
+             */
+             modulepar boolean PIC_Instance_considered := PIC_API_supports_StackAvail;
+            /**
+             * FALSE is returned if the instance is invalid
+             */
+             modulepar boolean PIC_FALSE_if_instance_invalid := PIC_API_supports_StackAvail;
+            /**
+             * FALSE is returned if the stack is not available?
+             */
+             modulepar boolean PIC_FALSE_if_not_available := PIC_API_supports_StackAvail;
+            /**
+             * TRUE is returned if the stack is available?
+             */
+             modulepar boolean PIC_TRUE_if_stack_available := PIC_API_supports_StackAvail;
+             /**
+              * @desc    Is DropInstance function supported?
+              */
+             modulepar boolean PIC_API_supports_DropInstance := true;
+            /**
+             * Is Instance applied?
+             */
+             modulepar boolean PIC_1Instance_applied := PIC_API_supports_DropInstance;
+            /**
+             * Is Severity considered?
+             */
+             modulepar boolean PIC_Severity_considered := PIC_API_supports_DropInstance;
+            /**
+             * ERUnknown instance is returned when an unknown instance is provided?
+             */
+             modulepar boolean PIC_ERUnknown_on_unknown_instance_provided := PIC_API_supports_DropInstance;
+            /**
+             * ERBadState is returned when Severity is not SEUnconditional and not in STNoSession State?
+             */
+             modulepar boolean PIC_ERBadState_on_SEUnconditional_and_STNoSession := PIC_API_supports_DropInstance;
+            /**
+             * ERNoError is returned when instance is successfully dropped?
+             */
+             modulepar boolean PIC_ERNoError_on_successfully_dropped := PIC_API_supports_DropInstance;
+             /**
+              * @desc    Is StartSession function supported?
+              */
+             modulepar boolean PIC_API_supports_StartSession := true;
+            /**
+             * Is Instance applied?
+             */
+             modulepar boolean PIC_2Instance_applied := PIC_API_supports_StartSession;
+            /**
+             * Is Reason applied?
+             */
+             modulepar boolean PIC_0Reason_applied := PIC_API_supports_StartSession;
+            /**
+             * Is SessionHandle applied?
+             */
+             modulepar boolean PIC_SessionHandle_applied := PIC_API_supports_StartSession;
+            /**
+             * ERInSession is returned if already in a session?
+             */
+             modulepar boolean ERInSession_if_already_in_session := PIC_API_supports_StartSession;
+            /**
+             * ERNoInstance is returned if the instance is invalid?
+             */
+             modulepar boolean ERNoInstance_if_instance_invalid := PIC_API_supports_StartSession;
+            /**
+             * ERUnknownEndpoint is returned if the parameterised endpoint is not known?
+             */
+             modulepar boolean ERUnknownEndpoint_if_endpoint_not_known := PIC_API_supports_StartSession;
+            /**
+             * ERSessionFailed is returned if session establishment fails immediately?
+             */
+             modulepar boolean ERSessionFailed_if_establishment_fails_immediately := PIC_API_supports_StartSession;
+            /**
+             * ERNoError is returned if session establishment starts correctly?
+             */
+             modulepar boolean ERNoError_if_establishment_starts_correctly := PIC_API_supports_StartSession;
+             /**
+              * @desc    Is EndSession function supported?
+              */
+             modulepar boolean PIC_API_supports_EndSession := true;
+            /**
+             * Is Instance applied?
+             */
+             modulepar boolean PIC_3Instance_applied := PIC_API_supports_EndSession;
+            /**
+             * Is Reason applied?
+             */
+             modulepar boolean PIC_1Reason_applied := PIC_API_supports_EndSession;
+            /**
+             * ERInSession is returned if the session is not in STSessionIdle and Reason is not RERemoteDrop?
+             */
+             modulepar boolean PIC_ERInSession_if_session_not_in_STSessionIdle_and_Reason_not_RERemoteDrop := PIC_API_supports_EndSession;
+            /**
+             * ERNoInstance is returned if the instance is invalid?
+             */
+             modulepar boolean PIC_ERNoInstance_if_instance_invalid := PIC_API_supports_EndSession;
+            /**
+             * ERNoError is returned if the EndSession starts correctly?
+             */
+             modulepar boolean PIC_ERNoError_if_EndSession_starts_correctly := PIC_API_supports_EndSession;
+             /**
+              * @desc    Is SendUnformattedADU function supported?
+              */
+             modulepar boolean PIC_API_supports_SendUnformattedADU := true;
+            /**
+             * Is Instance applied?
+             */
+             modulepar boolean PIC_4Instance_applied := PIC_API_supports_SendUnformattedADU;
+            /**
+             * Is MessageLen applied?
+             */
+             modulepar boolean PIC_MessageLen_applied := PIC_API_supports_SendUnformattedADU;
+            /**
+             * Is Message considered?
+             */
+             modulepar boolean PIC_Message_considered := PIC_API_supports_SendUnformattedADU;
+            /**
+             * ERBadState is returned if the session is not in the state STSessionIdle?
+             */
+             modulepar boolean PIC_ERBadState_returned_if_session_not_in_STSessionIdle := PIC_API_supports_SendUnformattedADU;
+             /**
+              * ERNoInstance is returned if the instance is invalid?
+              */
+              modulepar boolean PIC_0ERNoInstance_returned_if_instance_invalid := PIC_API_supports_SendUnformattedADU;
+            /**
+             * ERSessionFailed is returned if the session has failed?
+             */
+             modulepar boolean PIC_0ERSessionFailed_returned_if_session_failed := PIC_API_supports_SendUnformattedADU;
+            /**
+             * ERNoError is returned if progress is normal?
+             */
+             modulepar boolean PIC_0ERNoError_returned_if_progress_normal := PIC_API_supports_SendUnformattedADU;
+             /**
+              * @desc    Is SendADUSetStart function supported?
+              */
+             modulepar boolean PIC_API_supports_SendADUSetStart := true;
+            /**
+             * Is Instance supported?
+             */
+             modulepar boolean PIC_Instance_supported := PIC_API_supports_SendADUSetStart;
+            /**
+             * ERNoInstance is returned if the instance is invalid?
+             */
+             modulepar boolean PIC_1ERNoInstance_returned_if_instance_invalid := PIC_API_supports_SendADUSetStart;
+            /**
+             * ERBadState is returned if the instance is not in the state STSessionIdle?
+             */
+             modulepar boolean PIC_ERBadState_returned_if_instance_not_in_state_STSessionIdle := PIC_API_supports_SendADUSetStart;
+            /**
+             * ERSessionFailed is returned if the session has failed?
+             */
+             modulepar boolean PIC_1ERSessionFailed_returned_if_session_failed := PIC_API_supports_SendADUSetStart;
+            /**
+             * ERNoError is returned if progress is normal?
+             */
+             modulepar boolean PIC_1ERNoError_returned_if_progress_normal := PIC_API_supports_SendADUSetStart;
+             /**
+              * @desc    Is SendADU function supported?
+              */
+             modulepar boolean PIC_API_supports_SendADU := true;
+            /**
+             * Is Instance applied?
+             */
+             modulepar boolean PIC_5Instance_applied := PIC_API_supports_SendADU;
+            /**
+             * Is ElementLen applied?
+             */
+             modulepar boolean PIC_ElementLen_applied := PIC_API_supports_SendADU;
+            /**
+             * Is Element considered?
+             */
+             modulepar boolean PIC_Element_considered := PIC_API_supports_SendADU;
+            /**
+             * 0 is returned in case of error?
+             */
+             modulepar boolean PIC_0_returned_error := PIC_API_supports_SendADU;
+            /**
+             * Remaining space in the transmit buffer is returned in case of no error?
+             */
+             modulepar boolean PIC_Remaining_space_on_no_error := PIC_API_supports_SendADUSetStart;
+             /**
+              * @desc    Is SendADUSetEnd function supported?
+              */
+             modulepar boolean PIC_API_supports_SendADUSetEnd := true;
+            /**
+             * Is Instance considered?
+             */
+             modulepar boolean PIC_3Instance_considered := PIC_API_supports_SendADUSetEnd;
+            /**
+             * ERBadState is returned if the session is not in the state STSendingElements?
+             */
+             modulepar boolean PIC_ERBadState_returned_if_session_not_in_state_STSendingElements := PIC_API_supports_SendADUSetStart;
+            /**
+             * ERSessionFailed is returned if the session has failed?
+             */
+             modulepar boolean PIC_ERSessionFailed_returned_if_session_failed := PIC_API_supports_SendADUSetStart;
+            /**
+             * ERNoError is returned if the progress is normal?
+             */
+             modulepar boolean PIC_2ERNoError_returned_if_progress_normal := PIC_API_supports_SendADUSetStart;
+             
+        } // End of group Support_of_the_Down_API
+
+        /**
+         * @see B.2. Support of the Up API
+         */
+        group Support_of_the_Up_API {
+             /**
+              * @desc    Is InstanceStateChange event supported?
+              */
+             modulepar boolean PIC_API_supports_InstanceStateChange_Event := true;
+            /**
+             * Is Instance considered?
+             */
+             modulepar boolean PIC_4Instance_considered := PIC_API_supports_InstanceStateChange_Event;
+            /**
+             * Is OldState considered?
+             */
+             modulepar boolean PIC_OldState_considered := PIC_API_supports_InstanceStateChange_Event;
+            /**
+             * Is NewState considered?
+             */
+             modulepar boolean PIC_NewState_considered := PIC_API_supports_InstanceStateChange_Event;
+            /**
+             * Event is generated whenever an externally visible state change is generated?
+             */
+             modulepar boolean PIC_Event_raised_on_external_event := PIC_API_supports_InstanceStateChange_Event;
+             /**
+              * @desc    Is InstanceStateChange event supported?
+              */
+             modulepar boolean PIC_API_supports_UnformattedADUReceived_Event := true;
+            /**
+             * Is Instance delivered?
+             */
+             modulepar boolean PIC_0Instance_delivered := PIC_API_supports_InstanceStateChange_Event;
+            /**
+             * Is UnformattedMessageLen delivered?
+             */
+             modulepar boolean PIC_UnformattedMessageLen_delivered := PIC_API_supports_InstanceStateChange_Event;
+            /**
+             * Is UnformattedMessage delivered?
+             */
+             modulepar boolean PIC_UnformattedMessage_delivered := PIC_API_supports_InstanceStateChange_Event;
+            /**
+             * Event is generated whenever an UnformattedMessage is received?
+             */
+             modulepar boolean PIC_Event_generated_on_unformattedMessage_received := PIC_API_supports_InstanceStateChange_Event;
+             /**
+              * @desc    Is ADUReceived event supported?
+              */
+             modulepar boolean PIC_API_supports_ADUReceived_Event := true;
+            /**
+             * Is Instance delivered?
+             */
+             modulepar boolean PIC_1Instance_delivered := PIC_API_supports_ADUReceived_Event;
+            /**
+             * Is Element delivered?
+             */
+             modulepar boolean PIC_Element_delivered := PIC_API_supports_ADUReceived_Event;
+             /**
+              * @desc    Is ADUSent event supported?
+              */
+             modulepar boolean PIC_Event_generated_on_element_received := PIC_API_supports_ADUReceived_Event;
+             /**
+              * @desc    Is ADUSent event supported?
+              */
+             modulepar boolean PIC_API_supports_ADUSent_Event := true;
+            /**
+             * Is Instance delivered?
+             */
+             modulepar boolean PIC_2Instance_delivered := PIC_API_supports_ADUSent_Event;
+             /**
+              * @desc    Event is generated whenever a message has been acknowledged by the far end?
+              */
+             modulepar boolean PIC_Event_generated_on_message_acknowledged_by_far_end := PIC_API_supports_ADUSent_Event;
+             /**
+              * @desc    Is ADUSendOK event supported?
+              */
+             modulepar boolean PIC_API_supports_ADUSendOK_Event := true;
+            /**
+             * Is Instance delivered?
+             */
+             modulepar boolean PIC_3Instance_delivered := PIC_API_supports_ADUSendOK_Event;
+            /**
+             * Is CanSend delivered?
+             */
+             modulepar boolean PIC_CanSend_delivered := PIC_API_supports_ADUSendOK_Event;
+             /**
+              * @desc    Is ADUSent event supported?
+              */
+             modulepar boolean PIC_Event_generated_whenever_far_end_indicated_receive_elements := PIC_API_supports_ADUSent_Event;
+             /**
+              * @desc    Is ADUSent event supported?
+              */
+             modulepar boolean PIC_CanSend_TRUE_when_far_end_able_to_receive_elements := PIC_API_supports_ADUSent_Event;
+             /**
+              * @desc    Is SessionRequest event supported?
+              */
+             modulepar boolean PIC_API_supports_SessionRequest_Event := true;
+            /**
+             * Is Instance delivered?
+             */
+             modulepar boolean PIC_4Instance_delivered := PIC_API_supports_SessionRequest_Event;
+            /**
+             * Is Handle delivered?
+             */
+             modulepar boolean PIC_Handle_delivered := PIC_API_supports_SessionRequest_Event;
+             /**
+              * @desc    Event is generated when a stimulus is detected to indicate remote end wants to establish a session?
+              */
+             modulepar boolean PIC_Event_generated_on_stimulus := PIC_API_supports_SessionRequest_Event;
+        } // End of group Support_of_the_Up_API
+    } // End of group Transactions_Support
+
+    /**
+     * @see B.3. Use of communication stacks
+     */
+    group Communication_Stacks {
+
+        /**
+         * @see B.3.1. Supported communication stacks
+         */
+        group Supported_communication_stacks {
+             modulepar boolean PIC_Communications_supports_TCP_IPv4 := true;
+             modulepar boolean PIC_Communication_supports_TCP_IP_v6 := true;
+             modulepar boolean PIC_Communication_originates_IP_port_number := true;
+             modulepar boolean PIC_Communication_terminates_IP_port_number := true;
+             modulepar boolean PIC_FE_accepts_fully_qualified_domain_names_as_end_point := true;
+             modulepar boolean PIC_FE_closes_logical_session_automatically := true;
+        } // End of group Supported_communication_stacks
+
+    } // End of group Communication_Stacks
+
+    /**
+     * @see B.4 Front End Storage capacity
+     */
+    group FE_Storage_capacity {
+
+        /**
+         * @see B.4.1. Storage capacity for modules and contact details
+         */
+        group Modules_Contact_details {
+            modulepar integer PIC_Maximum_single_message_size := 1024;
+            modulepar integer PIC_Max_number_instances_communication_sessions_in_parallel := 16;
+            modulepar integer PIC_Max_storage_available_for_queuing_of_messages := 1024;
+            modulepar integer PIC_Max_number_of_keys_trust_certificates_available := 16;
+            modulepar integer PIC_Maximum_number_of_elements_transmitted_in_single_transaction := 1024;
+        } // End of group Modules_Contact_details
+
+        /**
+         * @see B.4.2. Generic values
+         */
+        group Generic_values {
+            modulepar integer PIC_Integers_Max_value := 65536;
+            modulepar integer PIC_Integers_Min_value := 0;
+            modulepar integer PIC_Strings := 32;
+            modulepar integer PIC_Parameter_maximum_length := 32;
+            modulepar integer PIC_Parameter_value_maximum_length := 128;
+        } // End of group Generic_values
+
+        /**
+         * @see B.4.3. Security of communication
+         */
+        group Security_communication {
+            modulepar boolean PIC_All_communication_is_over_encrypted_channels := false;
+            /**
+             * Specify key length for encryption (in bits)
+             */
+            modulepar integer PIC_Specify_key_length_for_encryption := 192;
+            modulepar charstring PIC_Specify_encryption_technology_used := "DESede";
+            /**
+             * Symmetric or Asymmetric keys? true for Symmetric, false otherwise
+             */
+            modulepar boolean PIC_Symmetric_Asymmetric_keys := true;
+        } // End of group Security_communication
+
+    } // End of group FE_Storage_capacity
+
+} // End of module Communication_PICS

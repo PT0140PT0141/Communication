@@ -1,0 +1,569 @@
+/**
+ * @author  FSCOM 
+ * @desc    This module provides functions used by Context Data TCs
+ * @see     Electronic fee collection (EFC) — Evaluation of equipment for conformity to CEN ISO/TS 17575-2 — Part 1: Test suite structure and test purpose
+ * @version $id$
+ */
+module Communication_Functions {
+    
+    // LibEfc_common
+    import from Common_TypesAndValues all;
+    import from Common_Defaults {
+        group DefaultUpperTester
+    };
+    import from Common_Functions { 
+        group DUT_Actions;
+    };
+    import from Common_LibUpperTester all;
+    
+    // Communication ATS
+    import from Communication_Interfaces all;
+    import from Communication_TypesAndValues {
+        type cen175752API, InitialiseInstance, CEN175752StateE
+    };
+    import from Communication_Defaults all;
+    import from Communication_Templates {
+        template 
+            m_initialiseInstance, 
+            m_startSession_default,
+            m_sendADUSetStart,
+            m_sendADU,
+            m_sendADUSetEnd,
+            m_sendUnformattedADU,
+            m_endSession_default,
+            m_dropInstance_SEUnconditional;
+        template 
+            mw_getLastError_ERNoError, 
+            mw_getLastError_any, 
+            mw_initialiseInstance_valid, 
+            mw_instanceStateChange_transition, 
+            mw_instanceStateChange_specific,
+            mw_instanceStateChange_any,
+            mw_sendADU
+    };
+    import from Communication_Pixits { modulepar PX_STACK_ID_1, PX_INSTANCES, PX_UNFORMATTED_MESSAGE, PX_STRUCTURED_MESSAGE };
+    import from Communication_PICS { modulepar PIC_API_supports_InstanceStateChange_Event, PIC_ERNoError_on_successfully_dropped };
+    
+    // Communication ATS
+/*    import from Communication_Interfaces all;
+    import from Communication_TypesAndValues all;
+    import from Communication_Defaults all;
+    import from Communication_Templates all;
+    import from Communication_Pixits all;
+    import from Communication_PICS all;*/
+
+    /**
+     * @desc    Preambule functions:
+     * - Initialize communication stack
+     * - Map TTCN-3 ports
+     * - Activate needed defaults
+     */
+    group Communication_Preamble {
+        /**
+         * @desc    Prepare preambule
+         * @verdict unchanged
+         */
+        function f_Communication_Preambule() runs on EutComp {
+            // Map TTCN-3 ports to TestAdapter ports
+            map(self:pco, system:ta_pco);
+            
+            // Activate message filtering timeouts
+            activate(Communication_Functions.a_defaults());
+            // Activate UpperTester
+            activate(a_upperTester());
+
+        } // End of function f_Communication_Preambule()
+    } // End of group Communication_Preamble
+
+    /**
+     * @desc    Postambule functions
+     * - Deactivate all activated defaults
+     * - Unmap TTCN-3 ports
+     * - De-Initialize communication stack
+     */
+    group Communication_Postamble {
+        /**
+         * @desc    Execute postambule
+         * @verdict unchanged
+         */
+        function f_Communication_Postambule() runs on EutComp {
+            // Deactivate all message filtering
+            deactivate;
+            
+            // Unmap TTCN-3 ports to TestAdapter ports
+            unmap(self:pco, system:ta_pco);
+        } // End of function f_Communication_Preambule()
+    } // End of group Communication_Postamble
+
+    group Initilization {
+
+        /**
+         * @desc    Create a valid set of instances
+         * @param   instanceNum Number of instance to create
+         * @verdict Set to inconc if instanceNum > PX_INSTANCES
+         */
+        function f_createInstance(in integer p_instanceNum)runs on EutComp {
+            var InitialiseInstance v_instance := null; // Used to retrieve instance handle
+    
+            // Sanity checks
+            if (p_instanceNum > PX_INSTANCES) {
+                setverdict(inconc);
+                stop;
+            }
+
+            for (var integer counter := 0; counter < p_instanceNum; counter := counter + 1) {
+                t_ac.start;
+                pco.send(m_initialiseInstance(PX_STACK_ID_1));
+                alt {
+                    [] pco.receive(mw_initialiseInstance_valid(PX_STACK_ID_1)) -> value v_instance {
+                        t_ac.stop;
+                        vc_instance[counter] := v_instance.instance; // Initialize the communication intance handle
+                    }
+                } // End of 'alt' statement
+                v_instance := null;
+            } // End of 'for' statement
+        } // End of function f_createInstance
+    } // End of group Initilization
+
+    group Session {
+        /**
+         * @desc    Start the session for specified instance
+         * @param   p_instance instance value
+         * @return  When STStarting state is reached
+         * @remark  Correct parametrization has already been done to establish session (example: ipAddress, port, url, protocol, PDP context, etc. are set)
+         */
+        function f_startSession(in cen175752API p_instance)runs on EutComp {
+
+            t_ac.start;
+            pco.send(m_startSession_default(p_instance));
+            alt {
+                [] pco.receive(mw_getLastError_ERNoError(p_instance)) {
+                    t_ac.stop;
+
+                    t_ac.start;
+                    repeat; // Wait for event STStarting
+                }
+                [PIC_API_supports_InstanceStateChange_Event == true] pco.receive(mw_instanceStateChange_transition(p_instance, e_STNoSession, e_STStarting)) {
+                    t_ac.stop;
+                }
+            } // End of 'alt' statement
+        } // End of function f_startSession
+
+        /**
+         * @desc    Establish the session for specified instance
+         * @param   p_instance instance value
+         * @return  When STSessionIdle state is reached
+         * @remark  Correct parametrization has already been done to establish session (example: ipAddress, port, url, protocol, PDP context, etc. are set)
+         */
+        function f_establishSession(in cen175752API p_instance)runs on EutComp {
+
+            f_startSession(vc_instance[0]);
+            // Current state is STStarting
+            t_ac.start;
+            alt { // Wait for e_STSessionIdle state
+                [PIC_API_supports_InstanceStateChange_Event == true] pco.receive(mw_instanceStateChange_transition(vc_instance[0], e_STStarting, e_STSessionIdle)) {
+                    t_ac.stop;
+                }
+            } // End of 'alt' statement
+            // Current state is STSessionIdle
+        } // End of function f_establishSession
+
+        /**
+         * @desc    End the session for specified instance
+         * @param   p_instance The instance within which this session is to be terminated
+         * @return  When STEnding state is reached
+         * @remark  Correct parametrization has already been done to establish session (example: ipAddress, port, url, protocol, PDP context, etc. are set)
+         */
+        function f_endSession(in cen175752API p_instance)runs on EutComp {
+
+            t_ac.start;
+            pco.send(m_endSession_default(p_instance));
+            alt {
+                [] pco.receive(mw_getLastError_ERNoError(p_instance)) {
+                    t_ac.stop;
+
+                    t_ac.start;
+                    repeat; // Wait for event STEnding
+                }
+                [PIC_API_supports_InstanceStateChange_Event == true] pco.receive(mw_instanceStateChange_specific(p_instance, e_STEnding)) {
+                    t_ac.stop;
+                }
+            } // End of 'alt' statement
+        } // End of function f_endSession
+
+        /**
+         * @desc    Terminate the session for specified instance
+         * @param   p_instance The instance within which this session is to be terminated
+         * @return  When STUnknownInstance state is reached
+         * @remark  Correct parametrization has already been done to establish session (example: ipAddress, port, url, protocol, PDP context, etc. are set)
+         */
+        function f_terminateSession(in cen175752API p_instance)runs on EutComp {
+
+            f_endSession(p_instance);
+            // Wait for event STNoSession
+            t_ac.start;
+            alt {
+                [PIC_API_supports_InstanceStateChange_Event == true] pco.receive(mw_instanceStateChange_specific(p_instance, e_STNoSession)) {
+                    t_ac.stop;
+
+                    t_ac.start;
+                    pco.send(m_dropInstance_SEUnconditional(p_instance));
+                    alt {
+                        [PIC_ERNoError_on_successfully_dropped == true] pco.receive(mw_getLastError_any) {
+                            t_ac.stop;
+
+                            repeat;
+                            t_ac.start;
+                        }
+                        [PIC_API_supports_InstanceStateChange_Event == true] pco.receive(mw_instanceStateChange_specific(p_instance, e_STUnknownInstance)) {
+                        }
+                    } // End of 'alt' statement
+                }
+            } // End of 'alt' statement
+        } // End of function f_terminateSession
+
+    } // End of group Session
+
+    group SendReceiveADU {
+
+        /**
+         * @desc    Establish the session for specified instance and send a request to start sending a set of structured ADUs to the remote end of the communication link
+         * @param   p_instance The instance within which this session is to be terminated
+         * @return  When STSendingADURequest state is reached
+         * @remark  Correct parametrization has already been done to establish session (example: ipAddress, port, url, protocol, PDP context, etc. are set)
+         */
+        function f_establishSession_startSending(in cen175752API p_instance)runs on EutComp {
+
+            f_establishSession(p_instance);
+            // Current state is STSessionIdle
+
+            t_ac.start;
+            pco.send(m_sendADUSetStart(p_instance));
+            alt {
+                [] pco.receive(mw_getLastError_ERNoError(p_instance)) {
+                    t_ac.stop;
+
+                    t_ac.start;
+                    repeat; // Wait for event STSendingADURequest
+                }
+                [PIC_API_supports_InstanceStateChange_Event == true] pco.receive(mw_instanceStateChange_specific(p_instance, e_STSendingElementsRequest)) {
+                    t_ac.stop;
+                }
+            } // End of 'alt' statement
+
+        } // End of function f_establishSession_startSending
+
+        /**
+         * @desc    Establish the session for specified instance and send a request to start sending a set of structured ADUs to the remote end of the communication link
+         * @param   p_instance The instance within which this session is to be terminated
+         * @return  When STSendingADU state is reached
+         * @remark  Correct parametrization has already been done to establish session (example: ipAddress, port, url, protocol, PDP context, etc. are set)
+         */
+        function f_establishSession_establishSending(in cen175752API p_instance)runs on EutComp {
+
+            f_establishSession_startSending(p_instance);
+            // Current state is STSendingADURequest
+            t_ac.start;
+            alt {
+                [PIC_API_supports_InstanceStateChange_Event == true] pco.receive(mw_instanceStateChange_specific(p_instance, e_STSendingElements)) {
+                    t_ac.stop;
+
+                    t_ac.start;
+                    pco.send(m_sendADU(p_instance, PX_STRUCTURED_MESSAGE));
+                    alt {
+                        [] pco.receive(mw_sendADU(p_instance)) {
+                            t_ac.stop;
+
+                            t_ac.start;
+                            repeat; // Wait for event STSendingADURequest
+                        }
+                        [PIC_API_supports_InstanceStateChange_Event == true] pco.receive(mw_instanceStateChange_specific(p_instance, e_STSendingUnformattedMessage)) {
+                            t_ac.stop;
+                        }
+                    } // End of 'alt' statement
+                }
+            } // End of 'alt' statement
+
+        } // End of function f_establishSession_startSending
+
+        /**
+         * @desc    Conclude the set of structured ADUs (as defined in Part 1 or Part 3) to be sent to the remote end of the communication link
+         * @param   p_instance The instance within which this message is to be sent
+         * @return  When STAwaitingADUConfirm state is reached
+         * @remark  Correct parametrization has already been done to establish session (example: ipAddress, port, url, protocol, PDP context, etc. are set)
+         */
+        function f_endSending(in cen175752API p_instance)runs on EutComp {
+
+            t_ac.start;
+            pco.send(m_sendADUSetEnd(p_instance));
+            alt {
+                [] pco.receive(mw_getLastError_ERNoError(p_instance)) {
+                    t_ac.stop;
+
+                    t_ac.start;
+                    repeat; // Wait for event e_STAwaitingElementsConfirm
+                }
+                [PIC_API_supports_InstanceStateChange_Event == true] pco.receive(mw_instanceStateChange_specific(p_instance, e_STAwaitingElementsConfirm)) {
+                    t_ac.stop;
+                }
+            } // End of 'alt' statement
+
+        } // End of function f_endSending
+
+        /**
+         * @desc    Terminate the set of structured ADUs (as defined in Part 1 or Part 3) to be sent to the remote end of the communication link
+         * @param   p_instance The instance within which this message is to be sent
+         * @return  When STSessionIdle state is reached
+         * @remark  Correct parametrization has already been done to establish session (example: ipAddress, port, url, protocol, PDP context, etc. are set)
+         */
+        function f_terminateSending(in cen175752API p_instance)runs on EutComp {
+
+            f_endSending(p_instance);
+            // Current state is STAwaitingADUConfirm
+            t_ac.start;
+            alt { // Wait for event STSessionIdle
+                [PIC_API_supports_InstanceStateChange_Event == true] pco.receive(mw_instanceStateChange_specific(p_instance, e_STSessionIdle)) {
+                    t_ac.stop;
+                }
+            } // End of 'alt' statement
+
+        } // End of function f_terminateSending
+
+        /**
+         * @desc    Establish the session for specified instance and send a request to start sending a set of structured ADUs to the remote end of the communication link
+         * @param   p_instance The instance within which this session is to be terminated
+         * @return  When STSendingUnformattedADU state is reached
+         * @remark  Correct parametrization has already been done to establish session (example: ipAddress, port, url, protocol, PDP context, etc. are set)
+         */
+        function f_establishSession_startSendingUnformatted(in cen175752API p_instance)runs on EutComp {
+
+            f_establishSession(p_instance);
+            // Current state is STSessionIdle
+
+            t_ac.start;
+            pco.send(m_sendUnformattedADU(p_instance, lengthof(PX_UNFORMATTED_MESSAGE), PX_UNFORMATTED_MESSAGE));
+            alt {
+                [] pco.receive(mw_getLastError_ERNoError(p_instance)) {
+                    t_ac.stop;
+
+                    t_ac.start;
+                    repeat; // Wait for event STSendingADURequest
+                }
+                [PIC_API_supports_InstanceStateChange_Event == true] pco.receive(mw_instanceStateChange_specific(p_instance, e_STSendingUnformattedMessage)) {
+                    t_ac.stop;
+                }
+            } // End of 'alt' statement
+
+        } // End of function f_establishSession_startSendingUnformatted
+
+        /**
+         * @desc    Establish the session for specified instance and send a user request to receive ADUs from the remote end of the communication link
+         * @param   p_instance The instance within which this session is to be terminated
+         * @return  When STSessionRxADUs state is reached
+         * @remark  Correct parametrization has already been done to establish session (example: ipAddress, port, url, protocol, PDP context, etc. are set)
+         */
+        function f_establishSession_startRxADUs(in cen175752API p_instance)runs on EutComp {
+
+            f_establishSession(vc_instance[0]);
+            f_userActions(cmdTrigger, sendADUMessage);
+            t_ac.start;
+            alt {
+                [PIC_API_supports_InstanceStateChange_Event == true] pco.receive(mw_instanceStateChange_specific(vc_instance[0], e_STSessionRxElements)) {
+                    t_ac.stop;
+                }
+                [PIC_API_supports_InstanceStateChange_Event == true] pco.receive(mw_instanceStateChange_any) {
+                    t_ac.stop;
+
+                    t_ac.start;
+                    repeat; // Wait for event STSessionRxADUs
+                }
+            } // End of 'alt' statement
+            // Current state is STSessionRxADUs
+
+        } // End of function f_establishSession_startSendingUnformatted
+
+    } // End of group SendReceiveADU
+
+    /**
+     * @desc    UpperTester group
+     */
+    group DUT_Actions {
+        /**
+         * @desc    Defines UpperTester commands
+         */
+        group Arguments {
+            /**
+             * @desc    Set parameter1 to Value1bis
+             */
+            const ParameterList setParameter1 := {
+                "instance", "0",
+                "parameter1", "Value1",
+                "", ""
+            };
+            /**
+             * @desc    Set parameter1 to Value1bis
+             */
+            const ParameterList setParameter2 := {
+                "instance", "1",
+                "parameter2", "Value2",
+                "", ""
+            };
+            /**
+             * @desc    Set parameter1 to Value1bis
+             */
+            const ParameterList setParameter3 := {
+                "instance", "2",
+                "parameter3", "Value3",
+                "", ""
+            };
+            /**
+             * @desc    Set stack available for instance #0
+             */
+            const ParameterList setStackAvailable := {
+                "instance", "0",
+                "stackAvail", "true",
+                "", ""
+            };
+            /**
+             * @desc    Set stack unvailable for instance #0
+             */
+            const ParameterList setStackNotAvailable := {
+                "instance", "0",
+                "stackAvail", "false",
+                "", ""
+            };
+            /**
+             * @desc    Set stack unvailable for instance #1
+             */
+            const ParameterList setStackNotAvailable_1 := {
+                "instance", "1",
+                "stackAvail", "false",
+                "", ""
+            };
+            /**
+             * @desc    Send an ADU message from the DUT to the Tester
+             */
+            const ParameterList sendADUMessage := {
+                "instance", "0",
+                "", ""
+            };
+            /**
+             * @desc    Make communication link failure (as break communication link cable)
+             */
+            const ParameterList makeCommunicationLinkFailure := {
+                "instance", "0",
+                "Make communication link failure (as break communication link cable)", "",
+                "", ""
+            };
+            /**
+             * @desc    Verify whether session has been established at remote end
+             */
+            const ParameterList verifySessionEstablishedAtRemoteEnd := {
+                "instance", "0",
+                "Verify whether session has been established at remote end", "",
+                "", ""
+            };
+            /**
+             * @desc    Verify whether session has been established at remote end
+             */
+            const ParameterList verifySessionEstablishedAtRemoteEnd_1 := {
+                "instance", "1",
+                "Verify whether session has been established at remote end", "",
+                "", ""
+            };
+            /**
+             * @desc    Verify whether session has been closed
+             */
+            const ParameterList verifySessionClosedAtRemoteEnd := {
+                "instance", "0",
+                "Verify whether session has been closed", "",
+                "", ""
+            };
+            /**
+             * @desc    Verify whether remote end acknowledges receipt of ADU
+             */
+            const ParameterList verifyRemoteEndAckReceiptADU := {
+                "instance", "0",
+                "Verify whether remote end acknowledges receipt of ADU", "",
+                "", ""
+            };
+            /**
+             * @desc    Verify whether Remote End indicates its ability to receive elements
+             */
+            const ParameterList verifyRemoteEndIndicatesAbilityToReceiveElements := {
+                "instance", "0",
+                "Verify whether Remote End indicates its ability to receive elements", "",
+                "", ""
+            };
+            /**
+             * @desc    Structured ADU is sent from the remote end using a session related
+             */
+            const ParameterList sendStructuredADU := {
+                "Structured ADU is sent from the remote end using a session related", "",
+                "", ""
+            };
+            /**
+             * @desc    Unformatted ADU is sent from the remote end, consisting of certain payload P of length L
+             */
+            const ParameterList sendUnformattedADU := {
+                "Unformatted ADU is sent from the remote end, consisting of certain payload P of length L", "",
+                "", ""
+            };
+            /**
+             * @desc    Unformatted ADU is sent from the remote end, consisting of certain payload P of length L
+             */
+            const ParameterList sendADURequest := {
+                "Remote end sends ADU Request for elements E corresponding", "",
+                "", ""
+            };
+            /**
+             * @desc    Verify whether an ADU payload transmitted to remote end
+             */
+            const ParameterList verifyADYPayloadTransmittedToRemoteEnd := {
+                "instance", "0",
+                "Verify whether an ADU payload transmitted to remote end", "",
+                "", ""
+            };
+            /**
+             * @desc    Terminate a session at remote end
+             */
+            const ParameterList terminateSessionAtEemoteEnd := {
+                "instance", "0",
+                "Terminate a session at remote end", "",
+                "", ""
+            };
+            /**
+             * @desc    Session request from remote end corresponding to instance1
+             */
+            const ParameterList sessionRequestFromRemoteEnd := {
+                "instance", "0",
+                "Session request from remote end corresponding to instance1", "",
+                "", ""
+            };
+            /**
+             * @desc    Remote end sends ADU Request for elements E corresponding to instance1 
+             */
+            const ParameterList aduRequestFromRemoteEnd := {
+                "instance", "0",
+                "Remote end sends ADU Request for elements E corresponding to instance1", "",
+                "", ""
+            };
+            /**
+             * @desc    Structured ADU is sent from the remote end using a session related to instance1
+             */
+            const ParameterList structuredADURequestFromRemoteEnd := {
+                "instance", "0",
+                "Structured ADU is sent from the remote end using a session related to instance1", "",
+                "", ""
+            };
+            /**
+             * @desc    Unformatted ADU is sent from the remote end, consisting of certain payload P of length L, using a session related to instance1
+             */
+            const ParameterList unformatedADURequestFromRemoteEnd := {
+                "instance", "0",
+                "Unformatted ADU is sent from the remote end, using a session related to instance1", "",
+                "", ""
+            };
+        } // End of group Arguments
+    } // End of group DUT_Actions
+} // End of module Communication_Functions

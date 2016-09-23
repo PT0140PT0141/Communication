@@ -1,0 +1,808 @@
+/**
+ * @author  FSCOM 
+ * @desc    This module provides control par for automatic test execution
+ * @see     Electronic fee collection (EFC) — Evaluation of equipment for conformity to CEN ISO/TS 17575-2 — Part 1: Test suite structure and test purpose
+ * @remark  See clause 5.3.2 for TC namimg conventions
+ * @version $id$
+ */
+module Communication_TE {
+    
+    // LibEfc_common
+    import from Common_Pixits { modulepar PX_GUARD };
+    
+    // Communication ATS
+    import from Communication_TCs all;
+    import from Communication_PICS { 
+        modulepar 
+            PIC_API_supports_InitialiseInstance,
+            PIC_API_supports_SetParameter,
+            PIC_API_supports_GetParameter,
+            PIC_API_supports_DeleteParameter,
+            PIC_API_supports_StackAvail,
+            PIC_API_supports_DropInstance,
+            PIC_API_supports_StartSession,
+            PIC_API_supports_EndSession,
+            PIC_API_supports_SendUnformattedADU,
+            PIC_API_supports_SendADUSetStart,
+            PIC_API_supports_SendADU,
+            PIC_API_supports_SendADUSetEnd,
+            PIC_API_supports_UnformattedADUReceived_Event,
+            PIC_API_supports_ADUReceived_Event
+    };
+
+    control {
+        /**
+         * @desc    These Test Purposes apply to  instance handling as claimed in [TS 17575-2] clause B.2 with respect to following PICS proforma entries:
+         * - API supports InitialiseInstance;
+         * - API supports SetParameter;
+         * - API supports GetParameter;
+         * - API supports DeleteParameter;
+         * - API supports DropInstance;
+         * - API supports StackAvail
+         * Test subgroup objective:
+         * - to test DUT behaviour with respect to instance initialization including multiple instance handling in parallel;
+         * - to test DUT behaviour with respect to parameter setting and updating;
+         * - to test DUT behaviour with respect to parameter getting;
+         * - to test DUT behaviour with respect to parameter deleting;
+         * - to test DUT behaviour with respect to availability of communications stack;
+         * - to test DUT behaviour with respect to dropping the session with following severities:
+         *      - SENormal;
+         *      - SEUrgent;
+         *      - SEUnconditional.
+         * @remark 27 TCs
+         */
+        if (PIC_API_supports_InitialiseInstance == true) {
+            /**
+             * @desc    TC_IH_API_BV_01: Verify the communications interface initialization
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BV_01(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_02: Verify the multiple instance communications interface initialization based on the same communications stack
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BV_02(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_03: Verify the multiple instance communications interface initialization based on different communications stack
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BV_03(), PX_GUARD);
+        } // End of 'if' statement
+        if ((PIC_API_supports_SetParameter == true) and (PIC_API_supports_GetParameter == true)) {
+            /**
+             * @desc    TC_IH_API_BV_04: Verify that parameter is set by Front End Application (single parameter)
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BV_04(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_05: Verify that parameter is set by Front End Application for multiple instances (different parameter names)
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BV_05(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_06: Verify that parameter is set by Front End Application for multiple instances (the same parameter names)
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BV_06(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_07: Verify that parameter is updated by Front End Application
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BV_07(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_08: Verify that parameter's value is fetched by the Front End Application
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BV_08(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_09: Verify that parameter's value is fetched by the Front End Application (multiple instances)
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BV_09(), PX_GUARD);
+        } // End of 'if' statement
+        if (PIC_API_supports_DeleteParameter == true) {
+            /**
+             * @desc    TC_IH_API_BV_10: Verify that parameter is deleted by Front End Application (single parameter)
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BV_10(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_11: Verify that parameter is deleted by Front End Application (multiple parameters)
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BV_11(), PX_GUARD);
+        } // End of 'if' statement
+        if (PIC_API_supports_StackAvail == true) {
+            /**
+             * @desc    TC_IH_API_BV_12: Verify whether StackAvail returns that communication stack is available
+             * @remark  [TS 17575-2], Clause 7.5. Session Failure
+             */
+            execute(TC_IH_API_BV_12(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_13: Verify whether StackAvail returns that communication stack is available (multiple instances)
+             * @remark  [TS 17575-2], Clause 7.5. Session Failure
+             */
+            execute(TC_IH_API_BV_13(), PX_GUARD);
+           /**
+             * @desc    TC_IH_API_BV_14: Verify whether StackAvail returns that communication stack is unavailable
+             * @remark  [TS 17575-2], Clause 7.5. Session Failure
+             */
+            execute(TC_IH_API_BV_14(), PX_GUARD);
+           /**
+             * @desc    TC_IH_API_BV_15: Verify whether StackAvail returns that communication stack is unavailable (multiple instances)
+             * @remark  [TS 17575-2], Clause 7.5. Session Failure
+             */
+            execute(TC_IH_API_BV_15(), PX_GUARD);
+           /**
+             * @desc    TC_IH_API_BV_16: Verify whether StackAvail returns that communication stack is available (for first instance) and unavailable (for second instance)
+             * @remark  [TS 17575-2], Clause 7.5. Session Failure
+             */
+            execute(TC_IH_API_BV_16(), PX_GUARD);
+        } // End of 'if' statement
+        if (PIC_API_supports_DropInstance == true) {
+            /**
+             * @desc    TC_IH_API_BV_17: Dropping the instance with SENormal severity
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BV_17(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_18: Dropping the instance with SEUrgent severity
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BV_18(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_19: Dropping the instance with SEUnconditional severity
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BV_19(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_20: Dropping the instance with SEUnconditional severity once session is in STStarting state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BV_20(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_21: Dropping the instance with SEUnconditional severity once session is in STSessionIdle state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BV_21(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_22: Dropping the instance with SEUnconditional severity once session is in STSendingADU state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BV_22(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_23: Dropping the instance with SEUnconditional severity once session is in STSendingADURequest state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BV_23(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_24: Dropping the instance with SEUnconditional severity once session is in STSendingUnformattedADU state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BV_24(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_25: Dropping the instance with SEUnconditional severity once session is in STSessionRxADUs state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BV_25(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_26: Dropping the instance with SEUnconditional severity once session is in STErrored state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BV_26(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BV_27: Dropping the instance with SEUnconditional severity once session is in STEnding state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BV_27(), PX_GUARD);
+        } // End of 'if' statement
+
+        /**
+         * @desc    Test subgroup objective:
+         * - to test DUT invalid behaviour with respect to instance initialization;
+         * - to test DUT invalid behaviour with respect to parameter setting;
+         * - to test DUT invalid behaviour with respect to parameter getting;
+         * - to test DUT invalid behaviour with respect to parameter deleting;
+         * - to test DUT invalid behaviour with respect to availability of communications stack;
+         * - to test DUT invalid behaviour with respect to dropping the session including following severities:
+         *      - SENormal;
+         *      - SEUrgent;
+         * in each state.
+         * @remark  29 TCs
+         */
+        if (PIC_API_supports_InitialiseInstance == true) {
+            /**
+             * @desc    TC_IH_API_BI_01: Verify that FE Communications API returns invalid instance once FE Application selected invalid communication stack
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BI_01(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_02: Verify that FE Communications API returns invalid instance once FE Application provides invalid Callbacks
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BI_02(), PX_GUARD);
+        } // End of 'if' statement
+        if ((PIC_API_supports_SetParameter == true) and (PIC_API_supports_GetParameter == true)) {
+            /**
+             * @desc    TC_IH_API_BI_03: Verify parameter setting upon invalid instance
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BI_03(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_04: Verify parameter setting upon invalid parameter
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BI_04(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_05: Verify parameter setting upon invalid parameter
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BI_05(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_06: Verify getting the parameter's value upon invalid instance
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BI_06(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_07: Verify getting the parameter's value once parameter does not exist
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BI_07(), PX_GUARD);
+        } // End of 'if' statement
+        if (PIC_API_supports_DeleteParameter == true) {
+            /**
+             * @desc    TC_IH_API_BI_08: Verify deletion upon invalid instance
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BI_08(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_09: Verify deletion once parameter does not exist
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE to FE Application) Session Request
+             */
+            execute(TC_IH_API_BI_09(), PX_GUARD);
+        } // End of 'if' statement
+        if (PIC_API_supports_StackAvail == true) {
+            /**
+             * @desc    TC_IH_API_BI_10: Verify whether StackAvail returns false not having instance initialized
+             * @remark  [TS 17575-2], Clause 7.5. Session Failure
+             */
+            execute(TC_IH_API_BI_10(), PX_GUARD);
+        } // End of 'if' statement
+        if (PIC_API_supports_DropInstance == true) {
+            /**
+             * @desc    TC_IH_API_BI_11: Dropping the instance with SENormal severity once no instance is initialized
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_11(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_12: Dropping the instance with SEUrgent severity once no instance is initialized
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_12(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_13: Dropping the instance with SEUnconditional severity once no instance is initialized
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_13(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_14: Dropping the instance with SENormal severity once session is in STStarting state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_14(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_15: Dropping the instance with SENormal severity once session is in STSessionIdle state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_15(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_16: Dropping the instance with SENormal severity once session is in STSendingADU state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_16(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_17: Dropping the instance with SENormal severity once session is in STSendingADURequest state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_17(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_18: Dropping the instance with SENormal severity once session is in STSendingUnformattedADU state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_18(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_19: Dropping the instance with SENormal severity once session is in STSessionRxADUs state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_19(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_20: Dropping the instance with SENormal severity once session is in STErrored state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_20(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_21: Dropping the instance with SENormal severity once session is in STEnding state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_21(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_22: Dropping the instance with SEUrgent severity once session is in STStarting state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_22(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_23: Dropping the instance with SEUrgent severity once session is in STSessionIdle state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_23(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_24: Dropping the instance with SEUrgent severity once session is in STSendingADU state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_24(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_25: Dropping the instance with SEUrgent severity once session is in STSendingADURequest state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_25(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_26: Dropping the instance with SEUrgent severity once session is in STSendingUnformattedADU state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_26(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_27: Dropping the instance with SEUrgent severity once session is in STSessionRxADUs state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_27(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_28: Dropping the instance with SEUrgent severity once session is in STErrored state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_28(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_29: Dropping the instance with SEUrgent severity once session is in STEnding state
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_IH_API_BI_29(), PX_GUARD);
+        } // End of 'if' statement
+    /**
+     * @desc    These Test Purposes apply to  session handling as claimed in [TS 17575-2] clause B.2 with respect to following PICS proforma entries:
+     * - API supports StartSession;
+     * - API supports EndSession
+     * @remark  13 TCs
+     */
+        if (PIC_API_supports_InitialiseInstance == true) {
+            /**
+             * @desc    TC_SH_API_BV_01: Session establishment
+             * @remark  [TS 17575-2], Clause 7.2.3. Outgoing (FE Application to BE) session establishment
+             * @see     TTCN-3 functions f_startSession() and f_terminateSession()
+
+             */
+            execute(TC_SH_API_BV_01(), PX_GUARD);
+            /**
+             * @desc    TC_SH_API_BV_02: Multiple session establishment
+             * @remark  [TS 17575-2], Clause 7.2.3. Outgoing (FE Application to BE) session establishment
+             * @see     TTCN-3 functions f_startSession() and f_terminateSession()
+             */
+            execute(TC_SH_API_BV_02(), PX_GUARD);
+            /**
+             * @desc    TC_SH_API_BV_03: Session establishment
+             * @remark  [TS 17575-2], Clause 7.4. Session Ending
+             * @see     TTCN-3 functions f_terminateSession()
+             */
+            execute(TC_SH_API_BV_03(), PX_GUARD);
+            /**
+             * @desc    TC_SH_API_BV_04: Session failure handling
+             * @remark  [TS 17575-2], Clause 7.5. Session Failure
+             */
+            execute(TC_SH_API_BV_04(), PX_GUARD);
+        } // End of 'if' statement
+        /**
+         * @desc    Test subgroup objective:
+         * - to test DUT invalid behaviour with respect to session establishment including multiple session establishment in parallel;
+         * - to test DUT invalid behaviour with respect to session ending in each visible state
+         * @remark  9 TCs
+         */
+        if ((PIC_API_supports_InitialiseInstance == true) and (PIC_API_supports_StartSession == true)) {
+            /**
+             * @desc    TC_SH_API_BI_01: Session establishment once session is already established
+             * @remark  [TS 17575-2], Clause 7.2.3. Outgoing (FE Application to BE) session establishment
+             */
+            execute(TC_SH_API_BI_01(), PX_GUARD);
+            /**
+             * @desc    TC_SH_API_BI_02: Session establishment once no instance initialized
+             * @remark  [TS 17575-2], Clause 7.2.3. Outgoing (FE Application to BE) session establishment
+             * @see     TTCN-3 functions f_startSession() and f_terminateSession()
+             */
+            execute(TC_SH_API_BI_02(), PX_GUARD);
+            /**
+             * @desc    TC_SH_API_BI_03: Session establishment once end point unknown
+             * @remark  [TS 17575-2], Clause 7.2.3. Outgoing (FE Application to BE) session establishment
+             */
+            execute(TC_SH_API_BI_03(), PX_GUARD);
+        } // End of 'if' statement
+        if ((PIC_API_supports_InitialiseInstance == true) and (PIC_API_supports_StartSession == true)) {
+            /**
+             * @desc    TC_SH_API_BI_04: Ending the session once no instance initialized
+             * @remark  [TS 17575-2], Clause 7.4. Session Ending
+             */
+            execute(TC_SH_API_BI_04(), PX_GUARD);
+            /**
+             * @desc    TC_SH_API_BI_05: Ending the session once no session is established
+             * @remark  [TS 17575-2], Clause 7.4. Session Ending
+             */
+            execute(TC_SH_API_BI_05(), PX_GUARD);
+            /**
+             * @desc    TC_SH_API_BI_06: Ending the session once session is in STSendingUnformattedADU
+             * @remark  [TS 17575-2], Clause 7.4. Session Ending
+             */
+            execute(TC_SH_API_BI_06(), PX_GUARD);
+            /**
+             * @desc    TC_SH_API_BI_07: Ending the session once session is in STSendingADU
+             * @remark  [TS 17575-2], Clause 7.4. Session Ending
+             */
+            execute(TC_SH_API_BI_07(), PX_GUARD);
+            /**
+             * @desc    TC_SH_API_BI_08: Ending the session once session is in STSendingADURequest
+             * @remark  [TS 17575-2], Clause 7.4. Session Ending
+             */
+            execute(TC_SH_API_BI_08(), PX_GUARD);
+            /**
+             * @desc    TC_SH_API_BI_09: Ending the session once session is in Ending the session once session is in STAwaitingADUConfirm
+             * @remark  [TS 17575-2], Clause 7.4. Session Ending
+             */
+            execute(TC_SH_API_BI_09(), PX_GUARD);
+        } // End of 'if' statement
+        /**
+         * @desc    These Test Purposes apply to  communication service primitives as claimed in [TS 17575-2] clause B.2 with respect to following PICS proforma entries:
+         * - API supports SendUnformattedADU;
+         * - API supports SendADUSetStart;
+         * - API supports SendADU;
+         * - API supports SendADUSetEnd;
+         * - API supports UnformattedADUReceived Event;
+         * - API supports ADUReceived Event;
+         * - API supports ADUSent Event;
+         * - API supports ADUSendOK Event
+         * @remark  47 TCs
+         */
+        if (PIC_API_supports_SendUnformattedADU == true) {
+            /**
+             * @desc    TC_CSP_API_BV_01: Sending unformatted ADU
+             * @remark  [TS 17575-2], Clause 7.3.2. Unstructured messages (ADUs)
+             */
+            execute(TC_CSP_API_BV_01(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BV_02: Sending unformatted ADU (multiple sessions)
+             * @remark  [TS 17575-2], Clause 7.3.2. Unstructured messages (ADUs)
+             */
+            execute(TC_CSP_API_BV_02(), PX_GUARD);
+        } // End of 'if' statement
+        if (PIC_API_supports_SendADU == true) {
+            /**
+             * @desc    TC_CSP_API_BV_03: Sending one structured ADU
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BV_03(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BV_04: Sending one ADU set (n messages)
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BV_04(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BV_05: Sending structured ADUs (multiple sessions)
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BV_05(), PX_GUARD);
+        } // End of 'if' statement
+        if (PIC_API_supports_UnformattedADUReceived_Event == true) {
+            /**
+             * @desc    TC_CSP_API_BV_06: Receipt of unformatted ADU
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE or FE Application) Session Request
+             */
+            execute(TC_CSP_API_BV_06(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BV_07: Receipt of unformatted ADUs for multiple sessions
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE or FE Application) Session Request
+             */
+            execute(TC_CSP_API_BV_07(), PX_GUARD);
+        } // End of 'if' statement
+        if (PIC_API_supports_ADUReceived_Event == true) {
+            /**
+             * @desc    TC_CSP_API_BV_08: Receipt of structured ADU
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE or FE Application) Session Request
+             */
+            execute(TC_CSP_API_BV_08(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BV_09: Receipt of structured ADU for multiple sessions
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE or FE Application) Session Request
+             */
+            execute(TC_CSP_API_BV_09(), PX_GUARD);
+        } // End of 'if' statement
+            /**
+             * @desc    TC_CSP_API_BV_10: Verify whether FE Application receives ADURequest callback
+             * @remark  [TS 17575-2], Clause 7.2.1. Incoming (BE or FE Application) Session Request
+             */
+            execute(TC_CSP_API_BV_10(), PX_GUARD);
+        if ((PIC_API_supports_SendUnformattedADU == true) and (PIC_API_supports_SendADUSetStart == true) and (PIC_API_supports_SendADUSetEnd == true) and (PIC_API_supports_SendADU == true)) {
+            /**
+             * @desc    TC_CSP_API_BI_01: Sending unformatted ADU once no instance is initialized
+             * @remark  [TS 17575-2], Clause 7.3.2. Unstructured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_01(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_02: Sending unformatted ADU once no session is established
+             * @remark  [TS 17575-2], Clause 7.3.2. Unstructured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_02(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_03: Sending unformatted ADU once session is in STStarting state
+             * @remark  [TS 17575-2], Clause 7.3.2. Unstructured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_03(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_04: Sending unformatted ADU once session is in STEnding state
+             * @remark  [TS 17575-2], Clause 7.3.2. Unstructured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_04(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_05: Sending unformatted ADU once session is in STErrored state
+             * @remark  [TS 17575-2], Clause 7.3.2. Unstructured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_05(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_06: Sending unformatted ADU once another unformatted ADU is being sent
+             * @remark  [TS 17575-2], Clause 7.3.2. Unstructured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_06(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_07: Sending unformatted ADU once session is in STSendingADURequest state
+             * @remark  [TS 17575-2], Clause 7.3.2. Unstructured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_07(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_08: Sending unformatted ADU once session is in STSendingADU state
+             * @remark  [TS 17575-2], Clause 7.3.2. Unstructured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_08(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_09: Sending unformatted ADU once session is in STAwaitingADUConfirm state
+             * @remark  [TS 17575-2], Clause 7.3.2. Unstructured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_09(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_10: Sending unformatted ADU once session failed
+             * @remark  [TS 17575-2], Clause 7.3.2. Unstructured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_10(), PX_GUARD);
+        } // End of control part
+        if (PIC_API_supports_SendADUSetStart == true) {
+            /**
+             * @desc    TC_CSP_API_BI_11: Starting ADU set once no instance is initialized
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_11(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_12: Starting ADU set once no session is established
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_12(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_13: Starting ADU set once session is in STStarting state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_13(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_14: Starting ADU set once session is in STEnding state\
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_14(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_15: Starting ADU set once session is in STErrored state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_15(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_16: Starting ADU set once session is in STSendingUnformattedADU state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_16(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_17: Starting ADU set once session is in STSendingADURequest state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_17(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_18: Starting ADU set once session is in STSendingADU state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_18(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_19: Starting ADU set once session is in STAwaitingADUConfirm state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_19(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_20: Starting ADU set once session failed
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_20(), PX_GUARD);
+        } // End of control part
+        if (PIC_API_supports_SendADU == true) {
+            /**
+             * @desc    TC_CSP_API_BI_21: Sending structured ADU once no instance is initialized
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_21(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_22: Sending structured ADU once no session is established
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_22(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_23: Sending structured ADU once session is in STStarting state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_23(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_24: Sending structured ADU once session is in STEnding state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_24(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_25: Sending structured ADU once session is in STErrored state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_25(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_26: Sending structured ADU once session is in STSendingUnformattedADU state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_26(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_27: Sending structured ADU once session is in STSendingADURequest state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_27(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_28: Sending structured ADU once session is in STAwaitingADUConfirm state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_28(), PX_GUARD);
+        } // End of control part
+        if (PIC_API_supports_SendADUSetEnd == true) {
+            /**
+             * @desc    TC_CSP_API_BI_29: Ending ADU set once no instance is initialized
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_29(), PX_GUARD);
+            /**
+             * @desc    TC_IH_API_BI_30: Ending ADU set once no session is established
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_30(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_313: Ending ADU set once session is in STStarting state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_31(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_32: Ending ADU set once session is in STEnding state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_32(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_33: Ending ADU set once session is in STErrored state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_33(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_34: Ending ADU set once session is in STSendingUnformattedADU state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_34(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_35: Ending ADU set once session is in STSendingADURequest state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_35(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_36: Ending ADU set once session is in STAwaitingADUConfirm state
+             * @remark  [TS 17575-2], 7.3.3. Structured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_36(), PX_GUARD);
+            /**
+             * @desc    TC_CSP_API_BI_37: Ending ADU set once session failed
+             * @remark  [TS 17575-2], Clause 7.3.2. Unstructured messages (ADUs)
+             */
+            execute(TC_CSP_API_BI_37(), PX_GUARD);
+        } // End of control part
+        /**
+         * @desc    These Test Purposes apply to  state transtions as claimed in [TS 17575-2] clause B.2 with respect to following PICS proforma entries:
+         * - API supports InstanceStateChange Event;
+         * - API supports CommsQuery;
+         * - API supports SessionRequest Event
+         * @remark  16 TCs
+         */
+            /**
+             * @desc    TC_ST_API_BV_01: State transition from STUnknownInstance to STNoSession
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_ST_API_BV_01(), PX_GUARD);
+            /**
+             * @desc    TC_ST_API_BV_02: State transition from STNoSession to STUnknownInstance
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_ST_API_BV_02(), PX_GUARD);
+            /**
+             * @desc    TC_ST_API_BV_03: Verify that there is no state change upon receipt of SessionRequest
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_ST_API_BV_03(), PX_GUARD);
+            /**
+             * @desc    TC_ST_API_BV_04: State transition from STNoSession to STStarting
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_ST_API_BV_04(), PX_GUARD);
+            /**
+             * @desc    TC_ST_API_BV_05: State transition from STStarting to STSessionIdle
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_ST_API_BV_05(), PX_GUARD);
+            /**
+             * @desc    TC_ST_API_BV_06: State transition from STSessionIdle to STSendingUnformattedADU
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_ST_API_BV_06(), PX_GUARD);
+            /**
+             * @desc    TC_ST_API_BV_07: State transition from STSessionIdle to STSendingUnformattedADU
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_ST_API_BV_07(), PX_GUARD);
+            /**
+             * @desc    TC_ST_API_BV_08: Verify that there is no state change upon receipt of ADURequest
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_ST_API_BV_08(), PX_GUARD);
+            /**
+             * @desc    TC_ST_API_BV_09: Verify that there is no state change upon receipt of ADURequest
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_ST_API_BV_09(), PX_GUARD);
+            /**
+             * @desc    TC_ST_API_BV_10: Verify that there is no state change upon receipt of ADU Received
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_ST_API_BV_10(), PX_GUARD);
+            /**
+             * @desc    TC_ST_API_BV_11: Verify that there is no state change upon receipt of ADU Received
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_ST_API_BV_11(), PX_GUARD);
+            /**
+             * @desc    TC_ST_API_BV_12: Verify that there is no state change upon receipt of ADURequest
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_ST_API_BV_12(), PX_GUARD);
+            /**
+             * @desc    TC_ST_API_BV_13: State transition from STSendingADURequest to STSendingADU
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_ST_API_BV_13(), PX_GUARD);
+            /**
+             * @desc    TC_ST_API_BV_14: State transition from STSendingADU to STAwaitingADUConfirm
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_ST_API_BV_14(), PX_GUARD);
+            /**
+             * @desc    TC_ST_API_BV_15: State transition from STAwaitingADUConfirm to STSessionIdle
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_ST_API_BV_15(), PX_GUARD);
+            /**
+             * @desc    TC_ST_API_BV_16: State transition from STErrored to STNoSession
+             * @remark  [TS 17575-2], Clause 7.2. Initialisation phase
+             */
+            execute(TC_ST_API_BV_16(), PX_GUARD);
+    } // End of 'control' statement
+
+} // End of module Communication_TE

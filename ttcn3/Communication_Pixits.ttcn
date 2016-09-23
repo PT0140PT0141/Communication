@@ -1,0 +1,103 @@
+/**
+ * @author  FSCOM 
+ * @desc    This module describes the parameters for TCs execution
+ * @version $id$
+ */
+module Communication_Pixits {
+    
+    // Communication ATS
+    import from Communication_TypesAndValues {
+        type cen175752API;
+    };
+
+    /**
+     * Identify the Stack #1
+     */
+    modulepar charstring PX_STACK_ID_1 := "StackID_1";
+    
+    /**
+     * Identify the Stack #1 with NULL callbacks
+     */
+    modulepar charstring PX_STACK_ID_1_WITH_NULL_CALLBACK := "StackID_1_With_Null_Callback"; // TODO: Use the stack id in the communication library to execute an initialization with NULL callback
+    
+    /**
+     * Identify the Stack #2
+     */
+    modulepar charstring PX_STACK_ID_2 := "StackID_2";
+    
+    /**
+     * Maximum number of instance that could be created during the preamblue
+     */
+    modulepar integer PX_INSTANCES := 4;
+    
+    /**
+     * Define an unformatted message in bytes format
+     */
+    modulepar octetstring PX_UNFORMATTED_MESSAGE := 'CAFEDECA'O;
+    
+    /**
+     * Define a structured message in bytes format
+     */
+    modulepar octetstring PX_STRUCTURED_MESSAGE := 'CAFEDECA'O;
+    
+    /**
+     * Define the invalid instance
+     */
+    modulepar cen175752API PX_INVALID_INSTANCE := -1;
+    
+    /**
+     * Define the invalid string content
+     */
+    modulepar charstring PX_INVALID_PARAMETER := "invalidParameter1";
+    /**
+     * Define the invalid string content
+     */
+    modulepar charstring PX_INVALID_VALUE := "invalidValue1";
+    
+    /**
+     * Define the invalid string content
+     */
+    modulepar charstring PX_INVALID_STRING := "n/a";
+    
+    /**
+     * Define an unformatted message in bytes format on receipt on instance1
+     */
+    modulepar octetstring PX_UNFORMATTED_MESSAGE_ON_RECEIPT := 'CAFEDECA'O;
+    
+    /**
+     * Define an unformatted message in bytes format on receipt on instance2
+     */
+    modulepar octetstring PX_UNFORMATTED_MESSAGE_ON_RECEIPT_1 := '1BADB002'O;
+    
+    /**
+     * Define a structured message in bytes format on receipt on instance1
+     */
+    modulepar octetstring PX_STRUCTURED_MESSAGE_ON_RECEIPT := 'CAFEBABE'O;
+    
+    /**
+     * Define a structured message in bytes format on receipt on instance2
+     */
+    modulepar octetstring PX_STRUCTURED_MESSAGE_ON_RECEIPT_1 := 'ABADBABE'O;
+    
+    /**
+     * Define a list of structured message in bytes format used by TC TC_CSP_API_BV_04
+     */
+    modulepar octetstring PX_STRUCTURED_MESSAGES[5] := {
+        'BAADF00D'O,
+        'BADCAB1E'O,
+        'BEADFACE'O,
+        'DEADBABE'O,
+        'DEADBEEF'O
+    };
+    
+    /**
+     * Incoming session instance (BE to FE)
+     */
+    modulepar cen175752API PX_FE_DEFAULT_INSTANCE := 112358;
+    
+    /**
+     * Incoming session handle (BE to FE)
+     */
+    modulepar charstring PX_FE_DEFAULT_HANDLE := "Fibonacci";
+    
+} // End of module Communication_Pixits

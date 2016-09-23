@@ -1,0 +1,571 @@
+module Communication_Templates {
+    
+    // LibEfc_common
+    import from Common_TypesAndValues all;
+    
+    // Communication ATS
+    import from Communication_TypesAndValues all;
+    import from Communication_Pixits {
+        modulepar PX_FE_DEFAULT_INSTANCE, PX_FE_DEFAULT_HANDLE
+    };
+
+    /**
+     * @desc    Abstract API signatures
+     * @see     A.2 Down API (Front End Application to Communications Stack)
+     */
+    group Down_API_Signatures {
+
+        /**
+         * @desc        Send the last error code for the specified communication instance (BE to FE application)
+         * @param       p_instance Instance value
+         */
+        template (value) GetLastError m_setLastError_default := {
+            instance := PX_FE_DEFAULT_INSTANCE,
+            errorCode := e_ERNoError
+        } // End of template m_setLastError_default
+
+        /**
+         * @desc    Match no error code
+         * @param   p_instance Instance value
+         */
+        template (value) GetLastError mw_getLastError_ERNoError(in cen175752API p_instance) := {
+            instance := p_instance,
+            errorCode := e_ERNoError
+        } // End of template mw_getLastError_ERNoError
+        /**
+         * @desc    Expect a specified error code
+         * @param   p_instance Instance value
+         * @param   p_error Expected error code
+         */
+        template (value) GetLastError mw_getLastError(in cen175752API p_instance, CEN175752ErrorE p_error) := {
+            instance := p_instance,
+            errorCode := p_error
+        } // End of template mw_getLastError_any
+        /**
+         * @desc    Expect an unspecified error code
+         * @param   p_instance Instance value
+         */
+        template GetLastError mw_getLastError_any := {
+            instance := ?,
+            errorCode := ?
+        } // End of template mw_getLastError_any
+
+        /**
+         * @desc        Initialises the communications API for use
+         * @param       p_stackID Underlying communications stack to be employed
+         * @see         Annex D.2. API Definition in C
+         * @shortdesc   cen175752API *InitialiseInstance(char *stackID,
+         *                      cen175752APICALLBACKInstanceStateChange(*InstanceStateChangeSet),
+         *                      cen175752APICALLBACKUnformattedADUReceived(*UnformattedMessageReceivedSet),
+         *                      cen175752APICALLBACKADURequest(*ElementRequestSet), 
+         *                      cen175752APICALLBACKADUReceived(*ElementReceivedSet), 
+         *                      cen175752APICALLBACKADUSent(*MessageSentSet),
+         *                      cen175752APICALLBACKADUSend(*ElementSendSet),
+         *                      cen175752APICALLBACKSessionRequest(*SessionRequestSet));
+         */
+        template (value) InitialiseInstance m_initialiseInstance(in charstring p_stackID) := {
+            stackID := p_stackID,
+            instance := omit
+        } // End of template m_initialiseInstance
+        /**
+         * @desc    Match an error code
+         * @param   p_stackID Underlying communications stack to be employed
+         */
+       template (present) InitialiseInstance mw_initialiseInstance_valid(in charstring p_stackID) := {
+            stackID := p_stackID,
+            instance := complement(0) // Instance value shall not be null
+        } // End of template mw_initialiseInstance_valid
+        /**
+         * @desc    Invalid instance
+         * @param   p_stackID Underlying communications stack to be employed
+         */
+       template (present) InitialiseInstance mw_initialiseInstance_invalid := {
+            stackID := ?,
+            instance := 0
+        } // End of template mw_initialiseInstance_valid
+
+        /**
+         * @desc    Set a parameter for this instance of the API. All parameters and values are expressed as strings
+         * @param   p_instance Instance value
+         * @param   p_param Parameter name
+         * @param   p_value Parameter value
+         * @see     Annex D.2. API Definition in C
+         * @remark  CEN175752ErrorE SetParameter(cen175752API *instance, char *param, char *val);
+         */
+        template (value) SetParameter m_setParameter(in cen175752API p_instance, in charstring p_param, in charstring p_value) := {
+            instance := p_instance,
+            param_ := p_param,
+            value_ := p_value
+        } // End of template m_setParameter
+        /**
+         * @desc    Get a parameter value for this instance of the API
+         * @param   p_instance Instance value
+         * @param   p_param Parameter name
+         * @see     Annex D.2. API Definition in C
+         * @remark  char *GetParameter(cen175752API *instance, char *param);
+         */
+        template (value) GetParameter m_getParameter(in cen175752API p_instance, in charstring p_param) := {
+            instance := p_instance,
+            param_ := p_param
+        } // End of template m_getParameter
+        /**
+         * @desc    Expect a parameter value for this instance of the API
+         * @param   p_instance Instance value
+         * @param   p_param Parameter name
+         * @param   p_value Parameter value to set
+         * @see     Annex D.2. API Definition in C
+         * @remark  char *GetParameter(cen175752API *instance, char *param);
+         */
+        template (value) GetParameter mw_getParameter(in cen175752API p_instance, in charstring p_param, in charstring p_value) := {
+            instance := p_instance,
+            param_ := p_param,
+            value_ := p_value
+        } // End of template m_getParameter
+        /**
+         * @desc    Delete a parameter from this instance of the API
+         * @param   p_instance Instance value
+         * @param   p_param Parameter name to delete
+         * @see     Annex D.2. API Definition in C
+         * @remark  CEN175752ErrorE DeleteParameter(cen175752API *instance, char *param);
+         */
+        template (value) DeleteParameter m_deleteParameter(in cen175752API p_instance, in charstring p_param) := {
+            instance := p_instance,
+            param_ := p_param
+        } // End of template m_deleteParameter
+        /**
+         * @desc    Indicate if the communications stack is currently available
+         * @param   p_instance Instance value
+         * @see     Annex D.2. API Definition in C
+         * @remark  BOOL StackAvail(cen175752API *instance);
+         */
+        template (value) StackAvail m_stackAvail(in cen175752API p_instance) := {
+            instance := p_instance,
+            stackAvail := omit
+        } // End of template m_stackAvail
+        /**
+         * @desc    Expect the available status
+         * @param   p_instance Instance value
+         * @see     Annex D.2. API Definition in C
+         * @remark  BOOL StackAvail(cen175752API *instance);
+         */
+        template (value) StackAvail mw_stackAvail_true(in cen175752API p_instance) := {
+            instance := p_instance,
+            stackAvail := true
+        } // End of template mw_stackAvail_true
+        /**
+         * @desc    Expect the available status
+         * @param   p_instance Instance value
+         * @see     Annex D.2. API Definition in C
+         * @remark  BOOL StackAvail(cen175752API *instance);
+         */
+        template (value) StackAvail mw_stackAvail_false(in cen175752API p_instance) := {
+            instance := p_instance,
+            stackAvail := false
+        } // End of template mw_stackAvail_false
+        
+        /**
+         * @desc    Delete a API interface
+         * @param   p_instance Instance value
+         * @see     Annex D.2. API Definition in C
+         * @remark  CEN175752ErrorE DropInstance(cencen175752API *instance, char *param);
+         */
+        template (value) DropInstance m_dropInstance_SENormal(in cen175752API p_instance) := {
+            instance := p_instance,
+            severity := e_SENormal
+        } // End of template m_dropInstance
+        /**
+         * @desc    Delete a API interface
+         * @param   p_instance Instance value
+         * @see     Annex D.2. API Definition in C
+         * @remark  CEN175752ErrorE DropInstance(cencen175752API *instance, char *param);
+         */
+        template (value) DropInstance m_dropInstance_SEUrgent(in cen175752API p_instance) := {
+            instance := p_instance,
+            severity := e_SEUrgent
+        } // End of template m_dropInstance
+        /**
+         * @desc    Delete a API interface
+         * @param   p_instance Instance value
+         * @see     Annex D.2. API Definition in C
+         * @remark  CEN175752ErrorE DropInstance(cencen175752API *instance, char *param);
+         */
+        template (value) DropInstance m_dropInstance_SEUnconditional(in cen175752API p_instance) := {
+            instance := p_instance,
+            severity := e_SEUnconditional
+        } // End of template m_dropInstance
+
+        /**
+         * @desc    Start the process to establish a session in the context of this interface (i.e. using the established communications channel and parameters). Session establishment is defined by an event indicating a change to STSessionIdle when the session is in place. Parameterisation of the session is via the SetParameter/GetParameter methods
+         * @param   p_instance Instance value
+         * @see     Annex D.2. API Definition in C
+         * @remark  CEN175752ErrorE StartSession(cen175752API *instance, CEN175752ReasonE reason, char *handle);
+         */
+        template (value) StartSession m_startSession_default(in cen175752API p_instance) := {
+            instance := p_instance,
+            reason := e_RENormal,
+            sessionHandle := "SessionHandle"
+        } // End of template m_startSession_default
+        /**
+         * @desc    Start the process to establish a session in the context of this interface (i.e. using the established communications channel and parameters). Session establishment is defined by an event indicating a change to STSessionIdle when the session is in place. Parameterisation of the session is via the SetParameter/GetParameter methods
+         * @see     Annex D.2. API Definition in C
+         * @remark  CEN175752ErrorE StartSession(cen175752API *instance, CEN175752ReasonE reason, char *handle);
+         */
+        template (present) StartSession mw_startSession_default := {
+            instance := PX_FE_DEFAULT_INSTANCE,
+            reason := ?,
+            sessionHandle := PX_FE_DEFAULT_HANDLE
+        } // End of template m_startSession_default
+
+        /**
+         * @desc    To start the process to end an active session in the context of this instance. Session end is confirmed via the state change event to state STNoSession. Under normal conditions any outstanding transactions in the context of the session will be completed before the close is performed
+         * @param   p_instance The instance within which this session is to be terminated
+         * @see     Annex D.2. API Definition in C
+         * @remark  CEN175752ErrorE EndSession(cen175752API *instance, CEN175752ReasonE reason);
+         */
+        template (value) EndSession m_endSession_remoteDrop(in cen175752API p_instance) := {
+            instance := p_instance,
+            reason := e_RERemoteDrop
+        } // End of template m_endSession_remoteDrop
+        /**
+         * @desc    To start the process to end an active session in the context of this instance. Session end is confirmed via the state change event to state STNoSession. Under normal conditions any outstanding transactions in the context of the session will be completed before the close is performed
+         * @param   p_instance The instance within which this session is to be terminated
+         * @see     Annex D.2. API Definition in C
+         * @remark  CEN175752ErrorE EndSession(cen175752API *instance, CEN175752ReasonE reason);
+         */
+        template (value) EndSession m_endSession_default(in cen175752API p_instance) := {
+            instance := p_instance,
+            reason := e_RENormal
+        } // End of template m_endSession_default
+
+        /**
+         * @desc    To start the process to end an active session in the context of this instance. Session end is confirmed via the state change event to state STNoSession. Under normal conditions any outstanding transactions in the context of the session will be completed before the close is performed
+         */
+        template (present) EndSession mw_endSession_default := {
+            instance := PX_FE_DEFAULT_INSTANCE,
+            reason := ?
+        } // End of template mw_endSession_default
+
+        /**
+         * @desc    To send a request to start sending a set of structured ADUs to the remote end of the communication link. Confirmation of acceptance of transfer is by means of an event ADUSendOK
+         * @param   p_instance The instance within which this message is to be sent
+         * @see     Annex D.2. API Definition in C
+         * @remark  CEN175752ErrorE SendADUSetStart(cen175752API *instance);
+         */
+        template (value) SendADUSetStart m_sendADUSetStart(in cen175752API p_instance) := {
+            instance := p_instance
+        } // End of template m_senADUSetStart
+
+        /**
+         * @desc    To add an ADU to the set to be sent to the remote end of the communication link
+         * @param   p_instance The instance within which this message is to be sent
+         * @param   p_element The element itself
+         * @see     Annex D.2. API Definition in C
+         * @remark  * @see     Annex D.2. API Definition in C
+         * @remark  CEN175752ErrorE SendADU(cen175752API *instance, WORD messageLen, BYTE *message
+);
+         */
+        template (value) SendADU m_sendADU(in cen175752API p_instance, in octetstring p_element) := {
+            instance := p_instance,
+            length_ := lengthof(p_element),
+            message_ := p_element,
+            remaining := omit
+        } // End of template m_senADU
+        template SendADU mw_sendADU(in cen175752API p_instance) := {
+            instance := p_instance,
+            length_ := ?,
+            message_ := *,
+            remaining := ?
+        } // End of template m_senADU
+        template SendADU mw_sendADU_error(in cen175752API p_instance) := {
+            instance := p_instance,
+            length_ := 0,
+            message_ := *,
+            remaining := *
+        } // End of template m_senADU
+
+        /**
+         * @desc    To conclude the set of structured ADUs (as defined in Part 1 or Part 3) to be sent to the remote end of the communication link. Far end reception of the elements is confirmed by means of the event ADUSent
+         * @param   p_instance The instance within which this message is to be sent
+         * @see     Annex D.2. API Definition in C
+         * @remark  CEN175752ErrorE SendADUSetEnd(cen175752API *instance);
+         */
+        template (value) SendADUSetEnd m_sendADUSetEnd(in cen175752API p_instance) := {
+            instance := p_instance
+        } // End of template m_senADUSetEnd
+
+        /**
+         * @desc    To send an unformatted ADU to the other end of the communication link. In the context of this document an unformatted ADU is one that has no special meaning to the communications API and is processed by vendor specific code. Confirmation of receipt at the far end is by means of an event indication
+         * @param   p_instance The instance within which this message is to be sent
+         * @param   p_length The length of the incoming message
+         * @param   p_message The message itself
+         * @see     Annex D.2. API Definition in C
+         * @remark  CEN175752ErrorE SendUnformattedADU(cen175752API *instance, WORD messageLen, BYTE *message);
+         */
+        template (value) SendUnformattedADU m_sendUnformattedADU(in cen175752API p_instance, in integer p_length, in octetstring p_message) := {
+            instance := p_instance,
+            length_ := p_length,
+            message_ := p_message
+        } // End of template m_sendUnformattedADU
+
+        /**
+         * @desc    To poll for the current state of the communications instance
+         * @param   p_instance To poll for the current state of the communications instance
+         * @see     Annex D.2. API Definition in C
+         * @remark  CEN175752StateE CommsQuery(cen175752API *instance);
+         */
+        template (value) CommsQuery m_commsQuery(in cen175752API p_instance) := {
+            instance := p_instance,
+            state := omit
+        } // End of template m_commsQuery
+        /**
+         * @desc    To poll for the current state of the communications instance
+         * @param   p_instance To poll for the current state of the communications instance
+         * @param   p_state The current state of the session
+         * @see     Annex D.2. API Definition in C
+         * @remark  CEN175752StateE CommsQuery(cen175752API *instance);
+         */
+        template (value) CommsQuery mw_commsQuery(in cen175752API p_instance, in CEN175752StateE p_state) := {
+            instance := p_instance,
+            state := p_state
+        } // End of template mw_commsQuery
+        /**
+         * @desc    To poll for the current state of the communications instance
+         * @param   p_instance To poll for the current state of the communications instance
+         * @see     Annex D.2. API Definition in C
+         * @remark  CEN175752StateE CommsQuery(cen175752API *instance);
+         */
+        template (present) CommsQuery mw_commsQuery_any(in cen175752API p_instance) := {
+            instance := p_instance,
+            state := ?
+        } // End of template mw_commsQuery_any
+
+    } // End of group Down_API_Signatures
+
+    /**
+     * @desc    Abstract API signatures
+     * @see     A.3 Up API (Front End Application to Communications Stack)
+     */
+    group Up_API_Signatures {
+
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance (BE to FE application)
+         * @param       p_oldState The old state of the instance
+         * @param       p_newState The new state of the instance
+         * @see         Annex D.2. API Definition in C
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        template (value) InstanceStateChange m_instanceStateChange_default(in CEN175752StateE p_oldState, in CEN175752StateE p_newState) := {
+            instance := PX_FE_DEFAULT_INSTANCE,
+            oldState := p_oldState,
+            newState := p_newState
+        } // End of template m_instanceStateChange_default
+
+
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @param       p_instance Instance value
+         * @param       p_newState The new state of the instance
+         * @see         Annex D.2. API Definition in C
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        template (present) InstanceStateChange mw_instanceStateChange_specific(in cen175752API p_instance, in CEN175752StateE p_newState) := {
+            instance := p_instance,
+            oldState := ?,
+            newState := p_newState
+        } // End of template mw_instanceStateChange_specific
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @param       p_instance The instance to which this indication relates
+         * @param       p_oldState The old state of the instance
+         * @param       p_newState The new state of the instance
+         * @see         Annex D.2. API Definition in C
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        template (value) InstanceStateChange mw_instanceStateChange_transition(in cen175752API p_instance, in CEN175752StateE p_oldState, in CEN175752StateE p_newState) := {
+            instance := p_instance,
+            oldState := p_oldState,
+            newState := p_newState
+        } // End of template mw_instanceStateChange_transition
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @see         Annex D.2. API Definition in C
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        template InstanceStateChange mw_instanceStateChange_error := {
+            instance := ?,
+            oldState := ?,
+            newState := e_STErrored
+        } // End of template mw_instanceStateChange_error
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @see         Annex D.2. API Definition in C
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        template InstanceStateChange mw_instanceStateChange_any := {
+            instance := ?,
+            oldState := ?,
+            newState := complement(e_STErrored)
+        } // End of template m_instanceStateChange_any
+
+        /**
+         * @desc        To add an ADU to the set to be sent to the remote end of the communication link
+         * @param       p_instance The instance to which this indication relates
+         * @param       p_length The length of the message, in octets, to be sent
+         * @param       p_message The message itself
+         * @see         Annex A.2.11. SendADU
+         * @remark      CEN175752ErrorE SendADUSetEnd(cen175752API *instance);
+         * @shortdesc   signature SendADU(in cen175752API instance, in integer length, in octetstring message) return CEN175752ErrorE;
+         */
+        template (value) UnformattedADUReceived mw_unformattedADUReceived(in cen175752API p_instance, in integer p_length, in octetstring p_message) := {
+            instance := p_instance,
+            length_ := p_length, 
+            message_ := p_message
+        } // End of template mw_unformattedADUReceived_any
+        /**
+         * @desc        To add an ADU to the set to be sent to the remote end of the communication link
+         * @see         Annex A.2.11. SendADU
+         * @remark      CEN175752ErrorE SendADUSetEnd(cen175752API *instance);
+         * @shortdesc   signature SendADU(in cen175752API instance, in integer length, in octetstring message) return CEN175752ErrorE;
+         */
+        template UnformattedADUReceived mw_unformattedADUReceived_any := {
+            instance := ?,
+            length_ := ?, 
+            message_ := ?
+        } // End of template mw_unformattedADUReceived_any
+
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @param       p_instance The instance to which this indication relates
+         * @param       p_element The element requested
+         * @see         Annex A.3.3. ADURequest
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        template (value) ADURequest mw_aduRequest(in cen175752API p_instance, in octetstring p_element) := {
+            instance := p_instance,
+            element := p_element
+        } // End of template mw_aduRequest
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @see         Annex A.3.3. ADURequest
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        template ADURequest mw_aduRequest_any := {
+            instance := ?,
+            element := ?
+        } // End of template mw_aduRequest_any
+
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @param       p_instance The instance to which this indication relates
+         * @param       p_element The element received
+         * @see         Annex A.3.4. ADUReceived
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        template (value) ADUReceived mw_aduReceived(in cen175752API p_instance, in octetstring p_element) := {
+            instance := p_instance,
+            element := p_element
+        } // End of template mw_aduReceived
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @see         Annex A.3.4. ADUReceived
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        template ADUReceived mw_aduReceived_any := {
+            instance := ?,
+            element := ?
+        } // End of template mw_aduReceived_any
+
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @param       p_instance The instance to which this indication relates
+         * @see         Annex A.3.5. ADUSent
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        template (value) ADUSent mw_aduSent(in cen175752API p_instance) := {
+            instance := p_instance
+        } // End of template mw_aduSent_any
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @see         Annex A.3.5. ADUSent
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        template ADUSent mw_aduSent_any := {
+            instance := ?
+        } // End of template mw_aduSent_any
+
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @param       p_instance The instance to which this indication relates
+         * @see         Annex A.3.6. ADUSendOK
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        template (value) ADUSendOK mw_aduSendOK_canSend(in cen175752API p_instance) := {
+            instance := p_instance,
+            canSend := true
+        } // End of template mw_aduSendOK_canSend
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @param       p_instance The instance to which this indication relates
+         * @see         Annex A.3.6. ADUSendOK
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        template (value) ADUSendOK mw_aduSendOK_not_canSend(in cen175752API p_instance) := {
+            instance := p_instance,
+            canSend := false
+        } // End of template mw_aduSendOK_not_canSend
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @see         Annex A.3.6. ADUSendOK
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        template ADUSendOK mw_aduSendOK_any := {
+            instance := ?,
+            canSend := ?
+        } // End of template mw_aduSendOK_any
+
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @param       p_instance The instance that generated this request
+         * @see         Annex A.3.7. SessionRequest
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        template (present) SessionRequest mw_sessionRequest(in cen175752API p_instance) := {
+            instance := p_instance,
+            handle := ?
+        } // End of template mw_sessionRequest
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @see         Annex A.3.7. SessionRequest
+         */
+        template SessionRequest m_sessionRequest_default := {
+            instance := PX_FE_DEFAULT_INSTANCE,
+            handle := PX_FE_DEFAULT_HANDLE
+        } // End of template mw_sessionRequest_any
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @see         Annex A.3.7. SessionRequest
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        template SessionRequest mw_sessionRequest_any := {
+            instance := ?,
+            handle := ?
+        } // End of template mw_sessionRequest_any
+
+    } // End of group Up_API_Signatures
+} // End of Communication_Templates

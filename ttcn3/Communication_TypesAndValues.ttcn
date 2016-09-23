@@ -1,0 +1,340 @@
+/**
+ * @author  FSCOM 
+ * @desc    This module provides type and values for Communication TPs
+ * @see     Electronic fee collection (EFC) — Evaluation of equipment for conformity to CEN ISO/TS 17575-2 — Part 1: Test suite structure and test purpose
+ * @see     Annex D: Exemple of definitions for appropiate languages
+* @version $id$
+ */
+module Communication_TypesAndValues {
+    
+    // LibEfc_common
+    import from Common_TypesAndValues all;
+    
+    /**
+     * @desc    Error code for communication external functions
+     * @see     Electronic fee collection (EFC) — Application interface definition for autonomous systems — Part 2: Communication and connections to the lower layers
+     * @see     Annex D.2. API Definition in C
+     */
+    type CommunicationErrorCodes CEN175752ErrorE;
+
+    /**
+     * @desc    Reason code for callback or drop
+     * @see     Electronic fee collection (EFC) — Application interface definition for autonomous systems — Part 2: Communication and connections to the lower layers
+     * @see     Annex D.2. API Definition in C
+     */
+    type enumerated CEN175752ReasonE { // TODO: To be adjusted with real implemantation
+        e_REUnknown     (-1),
+        e_RENormal       (0),
+        e_RECallback     (1),
+        e_RERemoteDrop   (2),
+        e_RETimed        (3)
+    } // End of enumerated CEN175752ReasonE
+
+    /**
+     * @desc    Responses to a session state query, or via a state change notification
+     * @see     Electronic fee collection (EFC) — Application interface definition for autonomous systems — Part 2: Communication and connections to the lower layers
+     * @see     Annex D.2. API Definition in C
+     */
+    type enumerated CEN175752StateE { // TODO: To be adjusted with real implemantation
+        e_STUnknownInstance                 (-1),
+        e_STNoSession                        (0),
+        e_STStarting                         (1),
+        e_STSessionIdle                      (2),
+        e_STSendingElements                  (3),
+        e_STSendingElementsRequest           (4),
+        e_STSendingUnformattedMessage        (5),
+        e_STAwaitingElementsConfirm          (6),
+        e_STSessionRxElements                (7),
+        e_STErrored                          (8),
+        e_STEnding                           (9)
+    } //End of enumerated CEN175752StateE
+
+    /**
+     * @desc    Severity of a drop request
+     * @see     Electronic fee collection (EFC) — Application interface definition for autonomous systems — Part 2: Communication and connections to the lower layers
+     * @see     Annex D.2. API Definition in C
+     */
+    type enumerated CEN175752SeverityE { // TODO: To be adjusted with real implemantation
+        e_SENormal          (0),
+        e_SEUrgent          (1),
+        e_SEUnconditional   (2)
+    } // End of enumerated CEN175752SeverityE
+
+    /**
+     * @desc    A handle to the instance of the API. This handle is used for all communications
+     * @see     Annex D.2. API Definition in C
+     * @remark  typedef void cen175752API;
+     */
+    type integer cen175752API;
+
+    /**
+     * @desc        Retrieve the last error code for the specified comminication instance
+     * @member      instance A handle to the instance of the API. This handle is used for all communications
+     * @member      errorCode Last error code for the specified comminication instance
+     * @shortdesc   signature GetLastError(in cen175752API instance) return CEN175752ErrorE;
+     */
+    type record GetLastError {
+        cen175752API instance,
+        CEN175752ErrorE errorCode optional
+    } // End of record GetLastError_Params
+
+    /**
+     * @desc    Abstract API signatures
+     * @see     A.2 Down API (Front End Application to Communications Stack)
+     */
+    group Down_API_Signatures {
+
+        /**
+         * @desc        Describe parameters for InitialiseInstance function
+         * @member      stackID Underlying communications stack to be employed
+         * @member      instance A handle to the instance of the API. This handle is used for all communications
+         * @see         Annex A.2.1. InitialiseInstance
+         * @shortdesc   signature InitialiseInstance(in charstring stackID, out cen175752API instance);
+         */
+        type record InitialiseInstance {
+            charstring stackID,
+            cen175752API instance optional
+        } // End of record Initializer_Params
+
+        /**
+         * @desc        Set a parameter for this instance of the API. All parameters and values are expressed as strings
+         * @member      instance The instance to which this parameter relates
+         * @member      param_ The parameter to be set
+         * @member      value_ The value to give to the parameter
+         * @see         Annex A.2.2. SetParameter
+         * @remark      CEN175752ErrorE SetParameter(cen175752API *instance, char *param, char *val);
+         * @shortdesc   signature SetParameter(in cen175752API instance, in charstring param_, in charstring value_) return CEN175752ErrorE;
+         */
+        type record SetParameter {
+            cen175752API instance,
+            charstring param_,
+            charstring value_
+        } // End of record SetParameter
+
+        /**
+         * @desc        Get a parameter value for this instance of the API
+         * @member      instance The instance to which this parameter relates
+         * @member      param_ The parameter to be got
+         * @member      value_ The value of the parameter
+         * @see         Annex A.2.3. GetParameter
+         * @remark      char *GetParameter(cen175752API *instance, char *param);
+         * @shortdesc   signature GetParameter(in cen175752API instance, in charstring param_, out charstring value_) return CEN175752ErrorE;
+         */
+        type record GetParameter {
+            cen175752API instance,
+            charstring param_,
+            charstring value_ optional
+        } // End of record GetParameter
+
+        /**
+         * @desc        Delete a parameter from this instance of the API
+         * @member      instance The instance to which this parameter relates
+         * @member      param_ The parameter to be deleted
+         * @see         Annex A.2.4. DeleteParameter
+         * @remark      CEN175752ErrorE DeleteParameter(cen175752API *instance, char *param);
+         * @shortdesc   signature DeleteParameter(in cen175752API instance, in charstring param_) return CEN175752ErrorE;
+         */
+        type record DeleteParameter {
+            cen175752API instance,
+            charstring param_
+        } // End of record DeleteParameter
+
+        /**
+         * @desc        Indicate if the communications stack is currently available
+         * @member      instance The instance to which this check relates
+         * @member      stackAvail Boolean indicating if the stack is currently available
+         * @see         Annex A.2.5. StackAvail
+         * @remark      BOOL StackAvail(cen175752API *instance);
+         * @shortdesc   signature StackAvail(in cen175752API instance) return boolean;
+         */
+        type record StackAvail {
+            cen175752API instance,
+            boolean stackAvail optional
+        } // End of record StackAvail
+
+        /**
+         * @desc        Delete a API interface
+         * @member      instance The instance to which this drop request relates
+         * @member      severity Speed with which this interface should be removed
+         * @see         Annex A.2.5. DropInstance
+         * @remark      CEN175752ErrorE DropInstance(cen175752API *instance, CEN175752SeverityE severity);
+         * @shortdesc   signature DropInstance(in cen175752API instance, in CEN175752SeverityE severity) return CEN175752ErrorE;
+         */
+        type record DropInstance {
+            cen175752API instance,
+            CEN175752SeverityE severity
+        } // End of record StackAvail
+
+        /**
+         * @desc        Start the process to establish a session in the context of this interface (i.e. using the established communications channel and parameters). Session establishment is defined by an event indicating a change to STSessionIdle when the session is in place. Parameterisation of the session is via the SetParameter/GetParameter methods
+         * @member      instance The instance within which this session request should be met
+         * @member      reason Reason for this session establishment
+         * @member      sessionHandle Any session handle information that is required
+         * @see         Annex A.2.7. StartSession
+         * @remark      CEN175752ErrorE StartSession(cen175752API *instance, CEN175752ReasonE reason, char *handle);
+         * @shortdesc   signature StartSession(in cen175752API instance, in CEN175752ReasonE reason, inout charstring sessionHandle) return CEN175752ErrorE;
+         */
+        type record StartSession {
+            cen175752API instance,
+            CEN175752ReasonE reason,
+            charstring sessionHandle optional
+        } // End of record StartSession
+
+        /**
+         * @desc        To start the process to end an active session in the context of this instance. Session end is confirmed via the state change event to state STNoSession. Under normal conditions any outstanding transactions in the context of the session will be completed before the close is performed
+         * @member      instance The instance within which this session is to be terminated
+         * @member      reason The reason for this session termination
+         * @see         Annex A.2.8. EndSession
+         * @remark      CEN175752ErrorE EndSession(cen175752API *instance, CEN175752ReasonE reason);
+         * @shortdesc   signature EndSession(in cen175752API instance, in CEN175752ReasonE reason) return CEN175752ErrorE;
+         */
+        //
+        type record EndSession {
+            cen175752API instance,
+            CEN175752ReasonE reason
+        } // End of record EndSession
+
+        /**
+         * @desc        To send a request to start sending a set of structured ADUs to the remote end of the communication link. Confirmation of acceptance of transfer is by means of an event ADUSendOK
+         * @member      instance The instance within which this message is to be sent
+         * @see         Annex A.2.10. SendADUSetStart
+         * @remark      CEN175752ErrorE SendADUSetStart(cen175752API *instance);
+         * @shortdesc   signature SendADUSetStart(in cen175752API instance) return CEN175752ErrorE;
+         */
+        type record SendADUSetStart {
+            cen175752API instance
+        } // End of record SendADUSetStartEnd
+
+        /**
+         * @desc        To add an ADU to the set to be sent to the remote end of the communication link
+         * @member      instance The instance within which this message is to be sent
+         * @member      length_ The length of the element, in octets, to be sent
+         * @member      message_ The element itself
+         * @see         Annex A.2.11. SendADU
+         * @remark      CEN175752ErrorE SendADUSetEnd(cen175752API *instance);
+         * @shortdesc   signature SendADU(in cen175752API instance, in integer length, in octetstring message) return CEN175752ErrorE;
+         */
+        type record SendADU {
+            cen175752API instance,
+            integer length_, 
+            octetstring message_ optional,
+            integer remaining optional
+        } // End of record SendADU
+
+        /**
+         * @desc        To conclude the set of structured ADUs (as defined in Part 1 or Part 3) to be sent to the remote end of the communication link. Far end reception of the elements is confirmed by means of the event ADUSent
+         * @member      instance The instance within which this message is to be sent
+         * @see         Annex A.2.12. SendADUSetEnd
+         * @remark      CEN175752ErrorE SendADUSetStart(cen175752API *instance);
+         * @shortdesc   signature SendADUSetEnd(in cen175752API instance) return CEN175752ErrorE;
+         */
+        type SendADUSetStart SendADUSetEnd;
+
+        /**
+         * @desc        To send an unformatted ADU to the other end of the communication link. In the context of this document an unformatted ADU is one that has no special meaning to the communications API and is processed by vendor specific code. Confirmation of receipt at the far end is by means of an event indication
+         * @see         Annex A.2.9. SendUnformattedADU
+         * @remark      CEN175752ErrorE SendUnformattedADU(cen175752API *instance, WORD messageLen, BYTE *message);
+         * @shortdesc   signature SendUnformattedADU(in cen175752API instance, in integer length, in octetstring message) return CEN175752ErrorE;
+         */
+        type SendADU SendUnformattedADU;
+
+        /**
+         * @desc        To poll for the current state of the communications instance
+         * @member      instance The instance to which this poll request relates
+         * @member      state The current state of the session
+         * @see         Annex A.2.13. CommsQuery
+         * @shortdesc   signature CommsQuery(in cen175752API instance) return CEN175752StateE;
+         */
+        type record CommsQuery {
+            cen175752API instance,
+            CEN175752StateE state optional
+        } // End of record CommsQuery
+
+    } // End of group Down_API_Signatures
+
+    /**
+     * @desc    Abstract API signatures
+     * @see     A.3 Up API (Front End Application to Communications Stack)
+     */
+    group Up_API_Signatures {
+        
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @member      instance The instance to which this indication relates
+         * @member      oldState The old state of the instance
+         * @member      newState The new state of the instance
+         * @see         Annex A.3.1. InstanceStateChange
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        type record InstanceStateChange {
+            cen175752API instance,
+            CEN175752StateE oldState,
+            CEN175752StateE newState
+        } // End of record InstanceStateChange
+
+        /**
+         * @desc        To indicate to the FE Application that an unformatted ADU has been received. After reception of this event the BE will automatically be informed that the FE Application has received the ADU satisfactorily
+         * @see         Annex A.3.2. UnformattedADUReceived
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        type SendADU UnformattedADUReceived;
+
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @member      instance The instance to which this indication relates
+         * @member      element Elements to be returned to the BE
+         * @see         Annex A.3.3. ADURequest
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        type record ADURequest {
+            cen175752API instance,
+            octetstring element
+        } // End of record ADURequest
+
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @see         Annex A.3.4. ADUReceived
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        type ADURequest ADUReceived;
+
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @see         Annex A.3.5. ADUSent
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        type SendADUSetStart ADUSent;
+
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @member      instance The instance to which this indication relates
+         * @member      canSend Flag indicating if send request was accepted
+         * @see         Annex A.3.6. ADUSendOK
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        type record ADUSendOK {
+            cen175752API instance,
+            boolean canSend
+        } // End of record ADUSendOK
+
+        /**
+         * @desc        To indicate to the FE Application that a change has occurred in the state of a communications instance
+         * @member      instance The instance that generated this request
+         * @member      handle The handle to be used for establishing the session
+         * @see         Annex A.3.7. SessionRequest
+         * @remark      cen175752APICALLBACKInstanceStateChange(x) void (x)(cen175752API *instance, CEN175752StateE oldState, CEN175752StateE newState);
+         * @shortdesc   signature cen175752APICALLBACKInstanceStateChange(in cen175752API instance, in CEN175752StateE oldState, in CEN175752StateE newState);
+         */
+        type record SessionRequest {
+            cen175752API instance,
+            charstring handle
+        } // End of record SessionRequest
+
+    }// End of group Up_API_Signatures
+} // End of module Communication_TypesAndValues
